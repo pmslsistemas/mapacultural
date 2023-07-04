@@ -1,0 +1,1 @@
+# mapacultural-simple-install
