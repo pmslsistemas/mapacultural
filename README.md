@@ -1,1 +1,1 @@
-# Instalação Simples para o Modelo de Mapa Cultural
+# Instalação Simples Modelo de Mapa Cultural
