@@ -3,7 +3,7 @@ services:
   mapas:
     build:
       context: ../core
-      dockerfile: ./compose/local/Dockerfile
+      dockerfile: ../core/compose/local/Dockerfile
     ports:
       - "80:80"
     volumes:
