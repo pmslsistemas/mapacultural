@@ -37,22 +37,22 @@ services:
      
       - ./compose/common/config.php:/var/www/html/protected/application/conf/config.php
       - ./compose/common/config.d:/var/www/html/protected/application/conf/conf-common.d
-      - ./compose/production/config.d:/var/www/html/protected/application/conf/config.d
-
-      - ./plugins/Accessibility:/var/www/html/protected/application/plugins/Accessibility
-      - ./plugins/AldirBlanc:/var/www/html/protected/application/plugins/AldirBlanc
-      - ./plugins/AldirBlancDataprev:/var/www/html/protected/application/plugins/AldirBlancDataprev
-      - ./plugins/AldirBlancValidador:/var/www/html/protected/application/plugins/AldirBlancValidador
-      - ./plugins/AldirBlancValidadorFinanceiro:/var/www/html/protected/application/plugins/AldirBlancValidadorFinanceiro
-      - ./plugins/MultipleLocalAuth:/var/www/html/protected/application/plugins/MultipleLocalAuth
-      - ./plugins/RegistrationPayments:/var/www/html/protected/application/plugins/RegistrationPayments
-      - ./plugins/EvaluationMethodTechnical:/var/www/html/protected/application/plugins/EvaluationMethodTechnical
-      - ./plugins/EvaluationMethodSeplag:/var/www/html/protected/application/plugins/EvaluationMethodSeplag
-      - ./plugins/ChatTawkto:/var/www/html/protected/application/plugins/ChatTawkto
-      - ./plugins/pwa:/var/www/html/protected/application/plugins/pwa
-      - ./plugins/Report:/var/www/html/protected/application/plugins/Report
-      - ./plugins/SendEmailUser:/var/www/html/protected/application/plugins/SendEmailUser
-      - ./plugins/RegistrationPaymentsAuxilio:/var/www/html/protected/application/plugins/RegistrationPaymentsAuxilio
+      - ./compose/production/config.d:/var/www/html/protected/application/conf/config.d     
+      
+      #- ../plugins/Accessibility:/var/www/html/protected/application/plugins/Accessibility
+      #- ../plugins/AldirBlanc:/var/www/html/protected/application/plugins/AldirBlanc
+      #- ../plugins/AldirBlancDataprev:/var/www/html/protected/application/plugins/AldirBlancDataprev
+      #- ../plugins/AldirBlancValidador:/var/www/html/protected/application/plugins/AldirBlancValidador
+      #- ../plugins/AldirBlancValidadorFinanceiro:/var/www/html/protected/application/plugins/AldirBlancValidadorFinanceiro
+      - ../plugins/MultipleLocalAuth:/var/www/html/protected/application/plugins/MultipleLocalAuth
+      #- ../plugins/RegistrationPayments:/var/www/html/protected/application/plugins/RegistrationPayments
+      #- ../plugins/EvaluationMethodTechnical:/var/www/html/protected/application/plugins/EvaluationMethodTechnical
+      #- ../plugins/EvaluationMethodSeplag:/var/www/html/protected/application/plugins/EvaluationMethodSeplag
+      #- ../plugins/ChatTawkto:/var/www/html/protected/application/plugins/ChatTawkto
+      #- ../plugins/pwa:/var/www/html/protected/application/plugins/pwa
+      #- ../plugins/Report:/var/www/html/protected/application/plugins/Report
+      #- ../plugins/SendEmailUser:/var/www/html/protected/application/plugins/SendEmailUser
+      #- ../plugins/RegistrationPaymentsAuxilio:/var/www/html/protected/application/plugins/RegistrationPaymentsAuxilio
     
 
     links:
