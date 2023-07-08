@@ -20,7 +20,7 @@ services:
       - .env
     build:
       context: ./core
-      dockerfile: ./core/Dockerfile
+      dockerfile: ./Dockerfile
     restart: always
     ports:
       - "9000:9000"

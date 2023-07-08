@@ -3,9 +3,9 @@ services:
   mapas:
     build:
       context: ../core
-      dockerfile: ../core/compose/local/Dockerfile
+      dockerfile: ./compose/local/Dockerfile
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ../docker-data/assets:/var/www/html/assets
       - ../docker-data/public-files:/var/www/html/files
