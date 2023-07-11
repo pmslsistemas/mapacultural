@@ -30,11 +30,11 @@ return [
 
 
     // AUTH -------------------
-    // 'auth.provider' => 'Fake', 
-    'auth.provider' => '\MultipleLocalAuth\Provider',
-    'auth.config' => array(
-        'salt' => env('AUTH_SALT', null),
-        'timeout' => '24 hours',
+     'auth.provider' => 'Fake', 
+    //'auth.provider' => '\MultipleLocalAuth\Provider',
+    //'auth.config' => array(
+        //'salt' => env('AUTH_SALT', null),
+        //'timeout' => '24 hours',
         //'strategies' => [
            //'Facebook' => array(
                //'app_id' => env('AUTH_FACEBOOK_APP_ID', null),
@@ -59,5 +59,5 @@ return [
             //),
 
         //]
-    )
+    //)
 ];
