@@ -17,7 +17,7 @@ services:
 
   mapasculturais:
     env_file:
-      - .env
+      - str.env
     build:
       context: ./core
       dockerfile: ./Dockerfile
