@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return [
     'doctrine.isDev' => false,
@@ -8,9 +8,9 @@ return [
     'slim.log.level'        => \Slim\Log::DEBUG,
     'slim.log.enabled'      => true,
 
-    // app.log.hook aceita regex para filtrar quais hooks são exibidos no output, 
+    // app.log.hook aceita regex para filtrar quais hooks são exibidos no output,
     // ex: "panel", "^template", "template\(site\.index\.*\):before"
-    'app.log.hook'          => false, 
+    'app.log.hook'          => false,
     // 'app.log.query'         => true,
     // 'app.log.requestData'   => true,
     // 'app.log.translations'  => true,
@@ -20,17 +20,17 @@ return [
 
 
     // MAILER -----------------
-    // 'mailer.user'       => 'you@gmail.com', 
-    // 'mailer.psw'        => 'passwd', 
-    // 'mailer.protocol'   => 'SSL', 
-    // 'mailer.server'     => 'smtp.gmail.com', 
-    // 'mailer.port'       => '465', 
-    // 'mailer.from'       => 'you@gmail.com', 
+    // 'mailer.user'       => 'you@gmail.com',
+    // 'mailer.psw'        => 'passwd',
+    // 'mailer.protocol'   => 'SSL',
+    // 'mailer.server'     => 'smtp.gmail.com',
+    // 'mailer.port'       => '465',
+    // 'mailer.from'       => 'you@gmail.com',
     // 'mailer.alwaysTo'   => 'you@gmail.com', // todos os emails serão enviados para este endereço
 
 
     // AUTH -------------------
-    //'auth.provider' => 'Fake', 
+    //'auth.provider' => 'Fake',
     'auth.provider' => '\MultipleLocalAuth\Provider',
     //'auth.config' => array(
         //'salt' => env('AUTH_SALT', null),

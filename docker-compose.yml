@@ -14,7 +14,6 @@ services:
     links:
       - mapasculturais
 
-
   mapasculturais:
     env_file:
       - str.env
@@ -34,11 +33,11 @@ services:
       - ./themes/Padrao:/var/www/html/protected/application/themes/Padrao
 
       - ./core/src/protected:/var/www/html/protected
-     
+
       - ./compose/common/config.php:/var/www/html/protected/application/conf/config.php
       - ./compose/common/config.d:/var/www/html/protected/application/conf/conf-common.d
-      - ./compose/production/config.d:/var/www/html/protected/application/conf/config.d     
-      
+      - ./compose/production/config.d:/var/www/html/protected/application/conf/config.d
+
       #- ./plugins/Accessibility:/var/www/html/protected/application/plugins/Accessibility
       #- ./plugins/AldirBlanc:/var/www/html/protected/application/plugins/AldirBlanc
       #- ./plugins/AldirBlancDataprev:/var/www/html/protected/application/plugins/AldirBlancDataprev
@@ -46,14 +45,14 @@ services:
       #- ./plugins/AldirBlancValidadorFinanceiro:/var/www/html/protected/application/plugins/AldirBlancValidadorFinanceiro
       - ./plugins/MultipleLocalAuth:/var/www/html/protected/application/plugins/MultipleLocalAuth
       #- ./plugins/RegistrationPayments:/var/www/html/protected/application/plugins/RegistrationPayments
-      #- ./plugins/EvaluationMethodTechnical:/var/www/html/protected/application/plugins/EvaluationMethodTechnical
-      #- ./plugins/EvaluationMethodSeplag:/var/www/html/protected/application/plugins/EvaluationMethodSeplag
+      - ./plugins/EvaluationMethodTechnical:/var/www/html/protected/application/plugins/EvaluationMethodTechnical
+      - ./plugins/EvaluationMethodSeplag:/var/www/html/protected/application/plugins/EvaluationMethodSeplag
       #- ./plugins/ChatTawkto:/var/www/html/protected/application/plugins/ChatTawkto
       #- ./plugins/pwa:/var/www/html/protected/application/plugins/pwa
-      #- ./plugins/Report:/var/www/html/protected/application/plugins/Report
-      #- ./plugins/SendEmailUser:/var/www/html/protected/application/plugins/SendEmailUser
+      - ./plugins/Report:/var/www/html/protected/application/plugins/Report
+      - ./plugins/SendEmailUser:/var/www/html/protected/application/plugins/SendEmailUser
       #- ./plugins/RegistrationPaymentsAuxilio:/var/www/html/protected/application/plugins/RegistrationPaymentsAuxilio
-    
+
 
     links:
       - db
@@ -63,14 +62,14 @@ services:
 
       - LOG_LEVEL=DEBUG
       - LOG_ENABLED=true
-      
+
       - APP_MODE=production
       - APP_LCODE=pt_BR
 #      - APP_LCODE=pt_BR,es_ES # para selecao do idioma baseado no navegador
-      
+
       - REDIS_CACHE=redis
       - SESSIONS_SAVE_PATH=tcp://redis:6379
-      - PENDING_PCACHE_RECREATION_INTERVAL=5
+      - PENDING_PCACHE_RECREATION_INTERVAL=60
 
       - DB_PASSWORD=mapas
       - DB_USER=mapas
@@ -83,8 +82,8 @@ services:
   redis:
     image: redis:6
     command: --maxmemory 256Mb --maxmemory-policy allkeys-lru
-    
-      
+
+
   db:
     image: postgis/postgis:14-master
     restart: always
@@ -92,7 +91,7 @@ services:
       - POSTGRES_PASSWORD=mapas
       - POSTGRES_USER=mapas
       - POSTGRES_DB=mapas
-      - POSTGRES_DB_TEST=mapasculturais_test
+     # - POSTGRES_DB_TEST=mapasculturais_test
     ports:
       - "5432:5432"
     volumes:
