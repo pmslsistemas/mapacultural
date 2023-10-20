@@ -30,7 +30,7 @@ services:
       - ./docker-data/saas-files:/var/www/SaaS
       - ./core/compose/production/php.ini:/usr/local/etc/php/php.ini
 
-      - ./themes/Theme_Santa_Luzia:/var/www/html/protected/application/themes/Theme_Santa_Luzia
+      - ./themes/SantaLuziaMG:/var/www/html/protected/application/themes/SantaLuziaMG
 
       - ./core/src/protected:/var/www/html/protected
 
@@ -50,7 +50,7 @@ services:
       - db
       - redis
     environment:
-      - ACTIVE_THEME=Theme_Santa_Luzia
+      - ACTIVE_THEME=SantaLuziaMG
 
       - LOG_LEVEL=DEBUG
       - LOG_ENABLED=true
