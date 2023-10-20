@@ -1,0 +1,10 @@
+# comment
+*/temp*
+*/*/temp*
+docker-data
+temp?
+Dockerfile
+src/protected/vendor
+**/.sass-cache/**
+db*
+**/node_modules/**
