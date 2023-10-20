@@ -30,7 +30,7 @@ services:
       - ./docker-data/saas-files:/var/www/SaaS
       - ./core/compose/production/php.ini:/usr/local/etc/php/php.ini
 
-      - ./themes/Padrao:/var/www/html/protected/application/themes/Padrao
+      - ./themes/Theme_Santa_Luzia:/var/www/html/protected/application/themes/Theme_Santa_Luzia
 
       - ./core/src/protected:/var/www/html/protected
 
@@ -58,7 +58,7 @@ services:
       - db
       - redis
     environment:
-      - ACTIVE_THEME=Padrao
+      - ACTIVE_THEME=Theme_Santa_Luzia
 
       - LOG_LEVEL=DEBUG
       - LOG_ENABLED=true

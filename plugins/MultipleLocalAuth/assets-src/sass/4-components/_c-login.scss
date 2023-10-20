@@ -1,0 +1,158 @@
+.login {
+    max-width: 602px;
+    margin: 32px auto;
+    padding: 0 16px;
+
+    @media (max-width: 500px) {
+        margin: 24px auto;
+    }
+
+    .field {
+        .recover {
+            color: var(--mc-primary-500);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 19px;
+            text-align: right;
+            text-decoration: none;
+        }
+    }
+
+    .g-recaptcha {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .divider {
+        width: 100%;
+        border-bottom: 1px solid #BBBBBB;
+    }
+
+    &__action {
+
+        .mc-card {
+            @media (max-width: 500px) {
+                padding: 16px;
+            }
+        }
+
+        .social-login {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+    
+            &--button {
+                display: block;
+                text-align: center;
+    
+                .img {
+                    align-items: center;
+                    display: flex;
+                    float: left;
+                    text-align: left;
+                    width: 50px;
+    
+                    img {
+                        height: 16px;
+                    }
+    
+                    @media (max-width: 500px) {
+                        width: 39px;
+    
+                        img {
+                            height: 14px;
+                        }
+                    }
+                }
+    
+                &.google {
+                    border: var(--mc-border-hairline) var(--mc-low-500);
+                    color: var(--mc-low-700);
+                }
+    
+                &.govbr {
+                    background-color: #1351B4;
+                    border: var(--mc-border-hairline) #1351B4;
+                    color: var(--mc-high-500);
+                }
+    
+                @media (max-width: 380px) {
+                    &.google, &.govbr {
+                        font-size: 13px;
+                    }
+                }
+            }        
+        }
+
+        .create {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .password {
+            position: relative;
+            
+            .seePassword {
+                background: url('https://api.iconify.design/carbon/view-filled.svg');
+                background-repeat: no-repeat;
+                background-size: 22.5px;
+                background-position-x: center;
+                background-position-y: center;
+                content: "";
+                height: 48px;
+                position: absolute;
+                right: 0;
+                top: 27px;
+                width: 48px;
+            }
+        }
+    }
+
+    &__recovery {
+        &--request {
+            .header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+
+                &__title {
+                    font-weight: 700;
+                    font-size: 24px;
+                    line-height: 28px;
+                }
+
+                &__icon {
+                    color: green;
+                    font-size: 96px;
+                }
+
+                &__label {
+                    font-weight: 400;
+                    font-size: 16px;
+                    line-height: 22px;
+                    text-align: center;
+                }
+            }
+        }
+
+        &--action {
+            .password {
+                &-rules {
+                    font-size: 14px;
+                    line-height: 19px;
+
+                    strong {
+                        color: var(--mc-danger-500);
+                    }
+                }
+            }
+        }
+    }
+}
