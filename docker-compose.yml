@@ -7,8 +7,8 @@ services:
      - ./docker-data/public-files:/var/www/html/files
      - ./docker-data/assets:/var/www/html/assets
     ports:
-     - "80:80"
-     - "443:443"
+     - "8080:80"
+     - "8443:443"
     depends_on:
       - mapasculturais
     links:
