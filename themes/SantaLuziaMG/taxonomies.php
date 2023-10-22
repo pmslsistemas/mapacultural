@@ -77,7 +77,7 @@ return array(
             i::__('Teatro'),
             i::__('Televisão'),
             i::__('Turismo'),
-           i::__('Outros')
+            i::__('Teste')
         )
     ),
 
