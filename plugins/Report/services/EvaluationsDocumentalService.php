@@ -1,7 +1,5 @@
 <?php
 
-
-
 use MapasCulturais\App;
 use MapasCulturais\i;
 
