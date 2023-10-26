@@ -178,7 +178,7 @@ return array(
             i::__('Teatro de Palco'),
             i::__('Teatro de Rua'),
             i::__('Outros - Teatro'),
-            i::__('Antropologia'),
+            i::__('Patrimônio Histórico e Cultural - Antropologia'),
             i::__('Patrimônio Histórico e Cultural - Arqueologia'),
             i::__('Patrimônio Histórico e Cultural - Arquitetura e Urbanismo'),
             i::__('Patrimônio Histórico e Cultural - Arquivos'),
