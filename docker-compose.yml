@@ -19,7 +19,7 @@ services:
       - str.env
     build:
       context: ./core
-      dockerfile: ./compose/common/Dockerfile
+      dockerfile: ./Dockerfile
     restart: always
     ports:
       - "9000:9000"
