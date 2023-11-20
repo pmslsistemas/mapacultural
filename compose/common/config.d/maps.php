@@ -1,7 +1,7 @@
 <?php
 $map_latitude = '-19.773994449006455,';
 $map_longitude = '-43.8790889365674';
-$map_zoom = '7';
+$map_zoom = '10';
 
 return [
     'maps.includeGoogleLayers' => true,

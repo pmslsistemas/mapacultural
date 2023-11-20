@@ -97,6 +97,10 @@ services:
       - ./compose/local/dump.sql:/docker-entrypoint-initdb.d/dump.sql
       - ./docker-data/db-data:/var/lib/postgresql/data
 
+<<<<<<< HEAD
+=======
+#Regras para utilização com proxy pré-defindo, para rodar aplicação local deve comentar as linhas abaixo e liberar as portas comentadas nas linhas acima.
+>>>>>>> 48b33f88cdbd83f5465ae0e6cf20b6c690254d17
     networks:
       - npmproxy
       - mapacultural_santaluzia_mg_default
@@ -104,4 +108,8 @@ services:
 networks:
   mapacultural_santaluzia_mg_default:
   npmproxy:
+<<<<<<< HEAD
     external: true
+=======
+    external: true
+>>>>>>> 48b33f88cdbd83f5465ae0e6cf20b6c690254d17
