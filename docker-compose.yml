@@ -6,13 +6,16 @@ services:
     volumes:
      - ./docker-data/public-files:/var/www/html/files
      - ./docker-data/assets:/var/www/html/assets
-    ports:
-     - "80:80"
-     - "443:443"
+       #ports:
+       #- "88:80"
+       # - "443:443"
     depends_on:
       - mapasculturais
     links:
       - mapasculturais
+    networks:
+      - npmproxy
+      - mapacultural_santaluzia_mg_default
 
   mapasculturais:
     env_file:
@@ -21,8 +24,8 @@ services:
       context: ./core
       dockerfile: ./Dockerfile
     restart: always
-    ports:
-      - "9000:9000"
+      #    ports:
+      #- "9000:9000"
     volumes:
       - ./docker-data/assets:/var/www/html/assets
       - ./docker-data/public-files:/var/www/html/files
@@ -44,6 +47,8 @@ services:
       - ./plugins/Report:/var/www/html/protected/application/plugins/Report
       - ./plugins/SendEmailUser:/var/www/html/protected/application/plugins/SendEmailUser
       
+    networks:
+      - mapacultural_santaluzia_mg_default
 
 
     links:
@@ -75,6 +80,8 @@ services:
     image: redis:6
     command: --maxmemory 256Mb --maxmemory-policy allkeys-lru
 
+    networks:
+      - mapacultural_santaluzia_mg_default
 
   db:
     image: postgis/postgis:14-master
@@ -84,8 +91,17 @@ services:
       - POSTGRES_USER=mapas
       - POSTGRES_DB=mapas
      # - POSTGRES_DB_TEST=mapasculturais_test
-    ports:
-      - "5432:5432"
+     #    ports:
+     #      - "5432:5432"
     volumes:
       - ./compose/local/dump.sql:/docker-entrypoint-initdb.d/dump.sql
       - ./docker-data/db-data:/var/lib/postgresql/data
+
+    networks:
+      - npmproxy
+      - mapacultural_santaluzia_mg_default
+
+networks:
+  mapacultural_santaluzia_mg_default:
+  npmproxy:
+    external: true
