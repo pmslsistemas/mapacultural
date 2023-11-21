@@ -106,3 +106,4 @@ networks:
   mapacultural_santaluzia_mg_default:
   npmproxy:
     external: true
+
