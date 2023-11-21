@@ -1,5 +1,5 @@
 <h1>Como usar</h1>
-<a href="{{asset:mapasculturais_manual.pdf}}">Faça download do manual completo.</a>
+<a href="{{asset:mapasculturais_manual.pdf}}" target="_blank">Acesse aqui o manual completo.</a>
 
 <section id="como-usar-encontre" class="como-usar clearfix">
 	<img class="como-usar-img alignleft" src="{{asset:img/tour/tour01.png}}" alt="" />
