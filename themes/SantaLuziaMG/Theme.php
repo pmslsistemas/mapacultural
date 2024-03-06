@@ -54,16 +54,6 @@ class Theme extends BaseV1\Theme{
 
     protected function _publishAssets() {
         $this->jsObject['assets']['logo-instituicao'] = $this->asset('img/logo-instituicao.png', false);
-    }
-
-    function getOccurrenceFrequencies() {
-        return array(
-            'once' => i::__('uma vez'),
-            'daily' => i::__('todos os dias'),
-            'weekly' => i::__('semanal'),
-            'monthly' => i::__('mensal'),
-            'yearly' => i::__('anual'),
-        );
-    }
+    }   
 
 }

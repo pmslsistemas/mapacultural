@@ -42,9 +42,7 @@ services:
       - ./compose/common/config.php:/var/www/html/protected/application/conf/config.php
       - ./compose/common/config.d:/var/www/html/protected/application/conf/conf-common.d
       - ./compose/production/config.d:/var/www/html/protected/application/conf/config.d
-
-      - ./lib/MapasCulturais/ApiOutputs/Html.php:/var/www/html/protected/application/lib/MapasCulturais/ApiOutputs/Html.php
-      
+          
       - ./plugins/MultipleLocalAuth:/var/www/html/protected/application/plugins/MultipleLocalAuth     
       - ./plugins/EvaluationMethodTechnical:/var/www/html/protected/application/plugins/EvaluationMethodTechnical
       - ./plugins/Report:/var/www/html/protected/application/plugins/Report
@@ -52,7 +50,6 @@ services:
       
     networks:
       - mapacultural_santaluzia_mg_default
-
 
     links:
       - db
