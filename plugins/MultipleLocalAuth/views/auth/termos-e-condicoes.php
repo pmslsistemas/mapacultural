@@ -58,20 +58,20 @@ Dados Anonimizados: são as informações consolidadas e derivadas dos dados pes
 <h1 style="text-align:justify">VI. Da Finalidade no Uso dos Dados</h1>
 <p style="text-align:justify">
 No escopo da Mapa Cultural , dentre várias finalidades no uso dos dados, destacamos:
-    • Os dados privados fornecidos pelo titular e tratados pelo Mapa Cultural serão 
+    Os dados privados fornecidos pelo titular e tratados pelo Mapa Cultural serão 
     utilizados para o fornecimento do serviço, respeitando as funcionalidades descritas 
     neste documento;
-    • Geração de índices e indicadores relacionados aos registros dos espaços, agentes, 
+    Geração de índices e indicadores relacionados aos registros dos espaços, agentes, 
     eventos, projetos e oportunidades;
-    • Criação de mapas com georreferenciamento, podendo ser utilizados para pesquisas 
+    Criação de mapas com georreferenciamento, podendo ser utilizados para pesquisas 
     acadêmicas e/ou para a geração/aplicação/acompanhamento de políticas públicas de 
     incentivo e desenvolvimento cultural;
-    • Os dados pessoais sensíveis serão coletados e processados exclusivamente para os 
+    Os dados pessoais sensíveis serão coletados e processados exclusivamente para os 
     fins especificados no momento da obtenção do consentimento. 
-    • Os dados sensíveis não serão utilizados para finalidades diferentes daquelas para 
+    Os dados sensíveis não serão utilizados para finalidades diferentes daquelas para 
     as quais o consentimento foi obtido, a menos que seja necessária uma nova obtenção 
     de consentimento explícito do usuário.
-    • Estas informações poderão ser utilizadas pela Secretaria da Cultura do Estado ou 
+    Estas informações poderão ser utilizadas pela Secretaria da Cultura do Estado ou 
     transferidas a outros Órgãos do Governo, sempre que houver o requerimento formal por 
     parte destes, autorização do titular e, por último, quando a legislação o 
     Autorizar/demandar.
@@ -126,10 +126,10 @@ A Secretaria da Cultura do Estado  utilizará as medidas adequadas, para maximiz
 Com o intuito de assegurar a liberdade de expressão e impedir a censura, a Secretaria da Cultura do Estado  segue os princípios e garantias do Marco Civil da Internet, Lei nº 12.965, de 23 de abril de 2014.
 
 
-    • O Mapa Cultural implementará medidas técnicas e organizacionais adequadas para garantir a proteção de dados desde a concepção e por padrão, conforme exigido pela LGPD.
-    • Em caso de incidente de segurança de dados pessoais, o Mapa Cultural notificará as autoridades competentes e os titulares dos dados afetados, conforme exigido pela LGPD.
-    • No caso de transferência internacional de dados, o Mapa Cultural adotará medidas adequadas para garantir a proteção dos dados pessoais transferidos, conforme exigido pela LGPD.
-    • O Mapa Cultural nomeará um Encarregado de Proteção de Dados (Data Protection Officer - DPO), conforme exigido pelo artigo 41 da LGPD, que será responsável por garantir o cumprimento da legislação de proteção de dados.
+    O Mapa Cultural implementará medidas técnicas e organizacionais adequadas para garantir a proteção de dados desde a concepção e por padrão, conforme exigido pela LGPD.
+    Em caso de incidente de segurança de dados pessoais, o Mapa Cultural notificará as autoridades competentes e os titulares dos dados afetados, conforme exigido pela LGPD.
+    No caso de transferência internacional de dados, o Mapa Cultural adotará medidas adequadas para garantir a proteção dos dados pessoais transferidos, conforme exigido pela LGPD.
+    O Mapa Cultural nomeará um Encarregado de Proteção de Dados (Data Protection Officer - DPO), conforme exigido pelo artigo 41 da LGPD, que será responsável por garantir o cumprimento da legislação de proteção de dados.
 
 </p>
 
