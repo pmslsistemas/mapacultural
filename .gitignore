@@ -34,3 +34,4 @@ scripts/nohup.out
 *node_modules*
 compose/local/config.d
 str.env
+docker-compose.yml
