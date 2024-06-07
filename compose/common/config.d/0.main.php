@@ -2,7 +2,7 @@
 
 use MapasCulturais\i;
 
-date_default_timezone_set('America/São_Paulo');
+date_default_timezone_set('America/Sao_Paulo');
 
 $base_domain = @$_SERVER['HTTP_HOST'];
 $base_url = 'https://' . $base_domain . '/';
