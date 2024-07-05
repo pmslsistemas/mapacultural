@@ -1,3 +1,0 @@
-docker-data
-docker-data/*
-
