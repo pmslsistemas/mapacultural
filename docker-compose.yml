@@ -1,4 +1,3 @@
-version: '3'
 services:
   web:
     image: hacklab/mapasculturais-nginx:latest
@@ -30,7 +29,7 @@ services:
       resources:
         limits:
           cpus: "3"
-          memory: 4096M
+          memory: 7168M
     volumes:
       - ./docker-data/assets:/var/www/html/assets
       - ./docker-data/public-files:/var/www/html/files
@@ -80,6 +79,17 @@ services:
     depends_on:
       - db
       - redis
+      - sessions
+
+  sessions:
+    image: redis:6
+    restart: unless-stopped
+    command: --maxmemory 384Mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ./docker-data/sessions:/data
+
+    networks:
+      - mapacultural_santaluzia_mg_default
 
   redis:
     image: redis:6

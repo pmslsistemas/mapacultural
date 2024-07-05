@@ -1,3 +1,6 @@
 docker-compose.yml
-#docker-data
+docker-data
 str.env
+docker-data/*
+node_modules
+vendor
