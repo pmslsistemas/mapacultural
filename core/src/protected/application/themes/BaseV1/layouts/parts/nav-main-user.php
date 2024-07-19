@@ -60,7 +60,8 @@
             <?php $this->applyTemplateHook('nav.dropdown.projects','before'); ?>
             <li>
                 <a href="<?php echo $app->createUrl('panel', 'projects') ?>"><?php \MapasCulturais\i::_e("Meus Projetos");?></a>
-                <?php $this->renderModalFor('project'); ?>                
+                <?php $this->renderModalFor('project'); ?>
+                <?php /* <a class="add" href="<?php echo $app->createUrl('project', 'create') ?>"></a> */ ?>
             </li>
             <?php $this->applyTemplateHook('nav.dropdown.projects','after'); ?>
         <?php endif; ?>

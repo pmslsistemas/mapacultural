@@ -18,7 +18,14 @@ use MapasCulturais\App;
  *
  * @todo http://thoughtsofthree.com/2011/04/defining-discriminator-maps-at-child-level-in-doctrine-2-0/
  *
- * @ORM\Table(name="agent_relation")
+ * @ORM\Table(name="agent_relation", indexes={
+ *      @ORM\Index(name="agent_relation_owner_type", columns={"object_type"}),
+ *      @ORM\Index(name="agent_relation_owner_id", columns={"object_id"}),
+ *      @ORM\Index(name="agent_relation_owner", columns={"object_type", "object_id"}),
+ *      @ORM\Index(name="agent_relation_agent", columns={"agent_id"}),
+ *      @ORM\Index(name="agent_relation_has_control", columns={"has_control"}),
+ *      @ORM\Index(name="agent_relation_status", columns={"status"}),
+ * })
  * @ORM\Entity
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  * @ORM\InheritanceType("SINGLE_TABLE")
@@ -156,7 +163,7 @@ abstract class AgentRelation extends \MapasCulturais\Entity
             
             if($this->owner->usesPermissionCache()){
                 $this->owner->deleteUsersWithControlCache();
-                $this->owner->enqueueToPCacheRecreation();
+                $this->owner->enqueueToPCacheRecreation([$this->agent->user]);
             }
         }  catch (\MapasCulturais\Exceptions\PermissionDenied $e){
            if(!App::i()->isWorkflowEnabled())
@@ -189,7 +196,7 @@ abstract class AgentRelation extends \MapasCulturais\Entity
 
         if($this->owner->usesPermissionCache()){
             $this->owner->deleteUsersWithControlCache();
-            $this->owner->enqueueToPCacheRecreation();
+            $this->owner->enqueueToPCacheRecreation([$this->agent->user]);
         }
     }
 
