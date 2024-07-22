@@ -21,13 +21,15 @@ class Theme extends BaseV1\Theme{
             'site: owner' => 'Secretaria Municipal de Cultura e Turismo',
             'site: by the site owner' => 'pela Secretaria Municipal de Cultura e Turismo',
 //
-//            'home: title' => "Bem-vind@!",
+            'home: title' => "Seja Bem Vindo!",
 //            'home: abbreviation' => "MC",
 //            'home: colabore' => "Colabore com o Mapas Culturais",
 //            'home: welcome' => "O Mapas Culturais é uma plataforma livre, gratuita e colaborativa de mapeamento cultural.",
             'home: welcome' => "A plataforma livre, colaborativa e interativa de mapeamento do cenário cultural e instrumento de governança digital no aprimoramento da gestão pública, dos mecanismos de participação e da democratização do acesso às políticas culturais promovidas pela Secretaria Municipal de Cultura e Turismo de Santa Luzia-MG.
             <br><br>O Mapa Cultural de Santa Luzia é uma ferramenta de comunicação que visibiliza os eventos do circuito de festivais de artes e do calendário cultural, os projetos desenvolvidos e os espaços promovidos pelos agentes e instituições culturais de Santa Luzia. É também a plataforma de acesso e execução dos editais realizados pela Secretaria Municipal de Cultura e Turismo.
-            <br><br>Além de conferir a agenda de eventos, você também pode colaborar na gestão da cultura do estado: basta criar seu perfil de agente cultural. A partir do cadastro, fica mais fácil participar dos editais e programas da Secretaria e também divulgar seus eventos, espaços ou projetos.",
+            <br><br>Além de conferir a agenda de eventos, você também pode colaborar na gestão da cultura do estado: basta criar seu perfil de agente cultural. A partir do cadastro, fica mais fácil participar dos editais e programas da Secretaria e também divulgar seus eventos, espaços ou projetos.
+            <br><br>Aviso Importante!
+            <br><br><a href='{{asset:portaria_SMCT_44_2024_de_2_de_julho_de_2024_1.pdf}}' download>A SECRETARIA MUNICIPAL DA CULTURA E DO TURISMO DE SANTA LUZIA/MG PUBLICA PORTARIA SMCT Nº 44/2024, DE 2 DE JULHO DE 2024. Que dispõe sobre a utilização da Plataforma Mapa Cultural de Santa Luzia/MG durante o período eleitoral.</a>",
 //            'home: events' => "Você pode pesquisar eventos culturais nos campos de busca combinada. Como usuário cadastrado, você pode incluir seus eventos na plataforma e divulgá-los gratuitamente.",
 //            'home: agents' => "Você pode colaborar na gestão da cultura com suas próprias informações, preenchendo seu perfil de agente cultural. Neste espaço, estão registrados artistas, gestores e produtores; uma rede de atores envolvidos na cena cultural da região. Você pode cadastrar um ou mais agentes (grupos, coletivos, bandas instituições, empresas, etc.), além de associar ao seu perfil eventos e espaços culturais com divulgação gratuita.",
 //            'home: spaces' => "Procure por espaços culturais incluídos na plataforma, acessando os campos de busca combinada que ajudam na precisão de sua pesquisa. Cadastre também os espaços onde desenvolve suas atividades artísticas e culturais.",
