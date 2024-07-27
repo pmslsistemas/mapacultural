@@ -1321,7 +1321,7 @@ $$
         }
     },
 
-    'RECREATE VIEW evaluations AGAIN!' => function() use($conn) {
+    'RECREATE VIEW evaluations AGAIN!!!!!' => function() use($conn) {
         __try("DROP VIEW evaluations");
 
         $conn->executeQuery("
@@ -1373,26 +1373,15 @@ $$
                         NULL AS evaluation_status
                     FROM registration r2 
                         JOIN pcache p2 
-                            ON r2.id = p2.object_id
+                            ON  p2.object_id = r2.id AND
+                                p2.object_type = 'MapasCulturais\Entities\Registration' AND 
+                                p2.action = 'evaluateOnTime'  
                         JOIN usr u2 
                             ON u2.id = p2.user_id
                         JOIN evaluation_method_configuration emc
                             ON emc.opportunity_id = r2.opportunity_id
-
-                        WHERE 
-                            p2.object_type = 'MapasCulturais\Entities\Registration' AND 
-                            p2.action = 'evaluate' AND
-                            
-                            r2.status > 0 AND
-                            p2.user_id IN (
-                                SELECT user_id FROM agent WHERE id in (
-                                    SELECT agent_id 
-                                    FROM agent_relation 
-                                    WHERE 
-                                        object_type = 'MapasCulturais\Entities\EvaluationMethodConfiguration' AND 
-                                        object_id = emc.id
-                                )
-                            ) 
+                        WHERE                          
+                            r2.status > 0
                 ) AS evaluations_view 
                 GROUP BY
                     registration_id,
@@ -1405,6 +1394,35 @@ $$
                     opportunity_id
             )
         ");
+    },
+
+    'adiciona oportunidades na fila de reprocessamento de cache' => function () use($conn) {
+        $sql = "SELECT id from opportunity where parent_id is null and status > 0";
+        foreach($conn->fetchAll($sql) as $em) {
+            __exec("
+                INSERT INTO permission_cache_pending (
+                    id,
+                    object_type,
+                    object_id,
+                    status
+                ) VALUES (
+                    nextval('permission_cache_pending_seq'::regclass), 
+                    'MapasCulturais\Entities\Opportunity',
+                    {$em['id']},
+                    0
+                )");
+        }
+    },
+
+    'adiciona novos indices a tabela agent_relation' => function ()  { 
+        __try("DROP INDEX agent_relation_all;");
+        __try("CREATE INDEX agent_relation_owner_type ON agent_relation (object_type);");
+        __try("CREATE INDEX agent_relation_owner_id ON agent_relation (object_id);");
+        __try("CREATE INDEX agent_relation_owner ON agent_relation (object_type, object_id);");
+        __try("CREATE INDEX agent_relation_owner_agent ON agent_relation (object_type, object_id, agent_id);");
+        __try("CREATE INDEX agent_relation_has_control ON agent_relation (has_control);");
+        __try("CREATE INDEX agent_relation_status ON agent_relation (status);");
+        __try("ALTER INDEX idx_54585edd3414710b RENAME TO agent_relation_agent;");
     },
 
     'valuer disabling refactor' => function() use($conn) {
@@ -1804,7 +1822,92 @@ $$
                         WHERE opportunity_id = {$opportunity_id}
                     );");
         }
+    },
 
-        return false;
+    'alter seal add column locked_fields' => function () {
+        if(!__column_exists('seal', 'locked_fields')) {
+            __exec("ALTER TABLE seal ADD locked_fields JSON DEFAULT '[]'");
+        }
+    },
+    'Corrige config dos campos na entidade registration_fields_configurarion' => function() use ($conn, $app){
+
+        $registration_fields_Types = $app->getRegisteredRegistrationFieldTypes();
+
+        $field_types = [];
+        foreach($registration_fields_Types as $type => $values){
+            if(preg_match('/^@[a-zA-Z0-9\- ]{1,90}/', $values->name)){
+                $field_types[] = "'".trim($values->slug)."'";
+            }
+        }
+        $_field_types = implode(",", $field_types);
+    
+        $fields = $conn->fetchAll("SELECT * FROM registration_field_configuration WHERE field_type NOT IN ({$_field_types}) AND config LIKE '%entityField%'");
+        
+        $txt = "";
+        foreach($fields as $field){
+            $_field = $app->repo("RegistrationFieldConfiguration")->find($field['id']);
+            $config = $_field->config;
+            $txt.='['.$_field->id.' => '.serialize($_field->config).']\n';
+            unset($config['entityField']);
+            array_filter($config);
+            $_field->config = $config;
+            $_field->save(true);
+            $app->log->debug("db-update executado no campo field_{$_field->id}");
+            $app->em->clear();
+        }
+
+        $fileName = "dbupdate_RegistrationFieldConfiguration.txt";
+        $dir = PRIVATE_FILES_PATH . "dbupdate_documento";
+        if (!file_exists($dir)) {
+            mkdir($dir, 775);
+        }
+
+        $path = $dir . "/" . $fileName;
+        $fp = fopen($path, "wb");
+        fwrite($fp, $txt);
+        fclose($fp);
+    },
+    "seta como vazio campo escolaridade do agent caso esteja com valor não informado" => function() use ($conn, $app){
+        /** @var App $app */
+        $app= App::i();
+        $conn = $app->em->getConnection();
+        if($agent_ids = $conn->fetchAll("SELECT am.object_id as id  FROM agent_meta am WHERE am.key = 'escolaridade' AND am.value = 'Não Informar'")){
+            $app->disableAccessControl();
+            foreach($agent_ids as $value){
+                $agent = $app->repo("Agent")->find($value['id']);
+                $agent->escolaridade =  null;
+                $agent->save(true);
+            }
+            $app->enableAccessControl();
+        }
+    },
+    'altera tipo da coluna description na tabela file' => function() use ($conn, $app){
+        $conn->executeQuery("ALTER TABLE file ALTER COLUMN description TYPE text;");
+    },
+    "Adiciona novas coluna na tabela registration_field_configuration" => function() use ($conn){
+        __exec("ALTER TABLE registration_field_configuration ADD conditional  BOOLEAN;");
+        __exec("ALTER TABLE registration_field_configuration ADD conditional_field  VARCHAR(255);");
+        __exec("ALTER TABLE registration_field_configuration ADD conditional_value  VARCHAR(255);");
+    },
+    "Adiciona novas coluna na tabela registration_file_configuration" => function() use ($conn){
+        __exec("ALTER TABLE registration_file_configuration ADD conditional  BOOLEAN;");
+        __exec("ALTER TABLE registration_file_configuration ADD conditional_field  VARCHAR(255);");
+        __exec("ALTER TABLE registration_file_configuration ADD conditional_value  VARCHAR(255);");
+    },
+
+    'adiciona coluna user_id à tabela pending_permission_cache' => function() use($conn) {
+        __exec('ALTER TABLE permission_cache_pending ADD usr_id INT DEFAULT NULL;');
+    },
+
+    'limpeza da tabela de pcache' => function() use($conn) {
+        __exec("
+            DELETE FROM pcache p1 
+                USING pcache p2 
+            WHERE 
+                p1.id > p2.id AND 
+                p1.user_id = p2.user_id AND 
+                p1.object_type = p2.object_type AND 
+                p1.object_id = p2.object_id AND 
+                p1.action = p2.action;");
     }
 ] + $updates ;

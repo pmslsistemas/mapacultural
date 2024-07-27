@@ -87,6 +87,9 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         $this->registerEvaluationMethodConfigurationMetadata('isActiveAffirmativePolicies', [
             'label' => i::__('Controla se as politicas afirmativas estão ou não ativadas'),
             'type' => 'boolean',
+            'serialize' => function ($val){
+                return ($val == "true") ? true : false;
+            }
         ]);
 
         $this->registerEvaluationMethodConfigurationMetadata('affirmativePoliciesRoof', [
@@ -124,6 +127,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         $app->view->localizeScript('technicalEvaluationMethod', [
             'sectionNameAlreadyExists' => i::__('Já existe uma seção com o mesmo nome'),
             'changesSaved' => i::__('Alteraçṍes salvas'),
+            'alertPendingAffirmativePolicies' => i::__('A configuração não foi salva; todos os campos são obrigatórios e ainda há alguns que não foram preenchidos.'),
             'deleteSectionConfirmation' => i::__('Deseja remover a seção? Esta ação não poderá ser desfeita e também removerá todas os critérios desta seção.'),
             'deleteCriterionConfirmation' => i::__('Deseja remover este critério de avaliação? Esta ação não poderá ser desfeita.'),
             'deleteAffirmativePolicy' => i::__('Deseja remover esta política afirmativa? Esta ação não poderá ser desfeita.')
@@ -167,7 +171,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
 
                     $policies = $reg->appliedAffirmativePolicy;
 
-                    if(!$policies->rules){
+                    if(!$policies || !$policies->rules){
                         continue;
                     }
 

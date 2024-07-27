@@ -200,13 +200,10 @@ class App extends \Slim\Slim{
         if($config['slim.debug'])
             error_reporting(E_ALL ^ E_STRICT);
 
-        if ($config['app.mode'] == APPMODE_PRODUCTION)
-            session_save_path(SESSIONS_SAVE_PATH);
+
+        session_save_path(SESSIONS_SAVE_PATH);
         
         session_start();
-
-        session_regenerate_id();
-
 
         if($config['app.offline']){
             $bypass_callable = $config['app.offlineBypassFunction'];
@@ -801,7 +798,6 @@ class App extends \Slim\Slim{
 
         $this->registerController('event',          'MapasCulturais\Controllers\Event');
         $this->registerController('agent',          'MapasCulturais\Controllers\Agent');
-        $this->registerController('seal',           'MapasCulturais\Controllers\Seal');
         $this->registerController('space',          'MapasCulturais\Controllers\Space');
         $this->registerController('project',        'MapasCulturais\Controllers\Project');
 
@@ -1636,16 +1632,33 @@ class App extends \Slim\Slim{
      **********************************************/
 
     /**
+     * Enfileira um job, substituindo um já existente
      * 
      * @param string $type_slug 
      * @param array $data 
      * @param string $start_string 
      * @param string $interval_string 
      * @param int $iterations 
+     * @return void 
+     * @throws Exception 
+     */
+    public function enqueueOrReplaceJob(string $type_slug, array $data, string $start_string = 'now', string $interval_string = '', int $iterations = 1) {
+        $this->enqueueJob($type_slug, $data, $start_string, $interval_string, $iterations, true);
+    }
+
+    
+    /**
+     * Enfileira um job
+     * @param string $type_slug 
+     * @param array $data 
+     * @param string $start_string 
+     * @param string $interval_string 
+     * @param int $iterations 
+     * @param bool $replace
      * @return Job 
      * @throws Exception 
      */
-    public function enqueueJob(string $type_slug, array $data, string $start_string = 'now', string $interval_string = '', int $iterations = 1) {
+    public function enqueueJob(string $type_slug, array $data, string $start_string = 'now', string $interval_string = '', int $iterations = 1, $replace = false) {
         if($this->config['app.log.jobs']) {
             $this->log->debug("ENQUEUED JOB: $type_slug");
         }
@@ -1660,7 +1673,11 @@ class App extends \Slim\Slim{
 
         if ($job = $this->repo('Job')->find($id)) {
             $this->log->debug('JOB ID JÁ EXISTE: ' . $id);
-            return $job;
+            if ($replace) {
+                $job->delete(true);
+            } else {
+                return $job;
+            }
         }
 
         $job = new Job($type);
@@ -1713,28 +1730,58 @@ class App extends \Slim\Slim{
     /**********************************************
      * Permissions Cache
      **********************************************/
-    private $permissionCachePendingQueue = [];
 
-    public function enqueueEntityToPCacheRecreation(Entity $entity){
+    private $_permissionCachePendingQueue = [];
+    private $_recreatedPermissionCacheList = [];
+
+    /**
+     * Adiciona a entidade na fila de reprocessamento de cache de permissão 
+     * @param Entity $entity 
+     * @return void 
+     */
+    public function enqueueEntityToPCacheRecreation(Entity $entity, User $user = null) {
         if (!$entity->__skipQueuingPCacheRecreation) {
-            $entity_key = $entity->id ? "$entity" : "$entity".spl_object_id($entity);
-            $this->permissionCachePendingQueue["$entity_key"] = $entity;
+            $entity_key = $entity->id ? "{$entity}" : "{$entity}:".spl_object_id($entity);
+            if($user) {
+                $entity_key = "{$entity_key}:{$user->id}";
+            }
+            $this->_permissionCachePendingQueue[$entity_key] = [$entity, $user];
         }
     }
 
-    public function isEntityEnqueuedToPCacheRecreation(Entity $entity){
-        return isset($this->permissionCachePendingQueue["$entity"]);
+    /**
+     * Verifica se a entidade já está na fila de reprocessamento de cache de permissão
+     * 
+     * @param Entity $entity 
+     * @return bool 
+     */
+    public function isEntityEnqueuedToPCacheRecreation(Entity $entity, User $user = null) {
+        $entity_key = $entity->id ? "{$entity}" : "{$entity}:".spl_object_id($entity);
+        if($user) {
+            $entity_key = "{$entity_key}:{$user->id}";
+        }
+
+        return isset($this->_permissionCachePendingQueue[$entity_key]);
     }
 
-    public function persistPCachePendingQueue(){
+    /**
+     * Persiste a fila de entidades para reprocessamento de cache de permissão
+     */
+    public function persistPCachePendingQueue() {
         $created = false;
-        foreach($this->permissionCachePendingQueue as $entity) {
+        foreach($this->_permissionCachePendingQueue as $config) {
+            $entity = $config[0];
+            $user = $config[1];
             if (is_int($entity->id) && !$this->repo('PermissionCachePending')->findBy([
-                    'objectId' => $entity->id, 'objectType' => $entity->getClassName()
+                    'objectId' => $entity->id, 
+                    'objectType' => $entity->getClassName(),
+                    'status' => 0,
+                    'user' => $user
                 ])) {
                 $pendingCache = new \MapasCulturais\Entities\PermissionCachePending();
                 $pendingCache->objectId = $entity->id;
                 $pendingCache->objectType = $entity->getClassName();
+                $pendingCache->user = $user;
                 $pendingCache->save(true);
                 $this->log->debug("pcache pending: $entity");
                 $created = true;
@@ -1745,35 +1792,38 @@ class App extends \Slim\Slim{
             $this->em->flush();
         }
 
-        $this->permissionCachePendingQueue = [];
+        $this->_permissionCachePendingQueue = [];
+    }
+    
+    public function setEntityPermissionCacheAsRecreated(Entity $entity) {
+        $this->_recreatedPermissionCacheList["$entity"] = $entity;
     }
 
-    public function setCurrentSubsiteId(int $subsite_id = null) {
-        if(is_null($subsite_id)) {
-            $this->_subsite = null;
-        } else {
-            $subsite = $this->repo('Subsite')->find($subsite_id);
-
-            if(!$subsite) {
-                throw new \Exception('Subsite not found');
-            }
-
-            $this->_subsite = $subsite;
-        }
+    public function isEntityPermissionCacheRecreated(Entity $entity) {
+        return isset($this->_recreatedPermissionCacheList["$entity"]);
     }
 
-    private $recreatedPermissionCacheList = [];
-
-    public function setEntityPermissionCacheAsRecreated(Entity $entity){
-        $this->recreatedPermissionCacheList["$entity"] = $entity;
-    }
-
-    public function isEntityPermissionCacheRecreated(Entity $entity){
-        return isset($this->recreatedPermissionCacheList["$entity"]);
-    }
-
+    /**
+     * Processa a primeira entidade da fila de reprocessamento de cache de permissão
+     */
     public function recreatePermissionsCache(){
-        $item = $this->repo('PermissionCachePending')->findOneBy(['status' => 0], ['id' => 'ASC']);
+        $conn = $this->em->getConnection();
+
+        $id = $conn->fetchOne('
+            SELECT id 
+            FROM permission_cache_pending
+            WHERE 
+                status = 0 AND 
+                CONCAT (object_type, object_id, usr_id) NOT IN (
+                    SELECT CONCAT(object_type, object_id, usr_id) 
+                    FROM permission_cache_pending WHERE 
+                    status > 0
+                )');
+
+        if(!$id) { 
+            return;
+        }
+        $item = $this->repo('PermissionCachePending')->find($id);
         if ($item) {
             $start_time = microtime(true);
 
@@ -1782,25 +1832,18 @@ class App extends \Slim\Slim{
             $item->save(true);
             $this->enableAccessControl();
 
-            $conn = $this->em->getConnection();
-            $conn->beginTransaction();
-
             try {
                 $entity = $this->repo($item->objectType)->find($item->objectId);
                 if ($entity) {
-                    $entity->recreatePermissionCache();
+                    $entity->recreatePermissionCache($item->user ? [$item->user] : null);
                 }
-                
+                $item = $this->repo('PermissionCachePending')->find($item->id);
                 $this->em->remove($item);
-
                 $this->em->flush();
-                $conn->commit();
-            } catch (\ExceptionAa $e ){
-                
-                $conn->rollBack();
-                
+            } catch (\Exception $e ){
                 $this->disableAccessControl();
-                $item->status = 0;
+                $item = $this->repo('PermissionCachePending')->find($item->id);
+                $item->status = 2; // ERROR
                 $item->save(true);
                 $this->enableAccessControl();
 
@@ -1816,7 +1859,7 @@ class App extends \Slim\Slim{
 
                 $this->log->info("PCACHE RECREATED FOR $item IN {$total_time} seconds\n--------\n");
             }
-            $this->permissionCachePendingQueue = [];
+            $this->_permissionCachePendingQueue = [];
         }
     }
 
@@ -2325,10 +2368,8 @@ class App extends \Slim\Slim{
     public function getControllerByEntity($entity){
         if(is_object($entity))
             $entity = $entity->getClassName();
-        else if(is_string($entity) && strpos($entity, '\\') === false)
-            $entity = '\MapasCulturais\Entities\\' . $entity;
-
-        $controller_class = preg_replace('#\\\Entities\\\([^\\\]+)$#', '\\Controllers\\\$1', $entity);
+        
+        $controller_class = $entity::getControllerClassName();
         return $this->getControllerByClass($controller_class);
     }
 
@@ -2346,10 +2387,8 @@ class App extends \Slim\Slim{
     public function getControllerIdByEntity($entity){
         if(is_object($entity))
             $entity = $entity->getClassName();
-        else if(is_string($entity) && strpos($entity, '\\') === false)
-            $entity = '\MapasCulturais\Entities\\' . $entity;
 
-        $controller_class = preg_replace('#\\\Entities\\\([^\\\]+)$#', '\\Controllers\\\$1', $entity);
+        $controller_class = $entity::getControllerClassName();
 
         return $this->getControllerId($controller_class);
     }
@@ -2864,139 +2903,12 @@ class App extends \Slim\Slim{
      * Utils
      ************/
 
-    function slugify($text) {
-
-        $text = $this->removeAccents($text);
-
-        // replace non letter or digits by -
-        $text = preg_replace('~[^\pL\d]+~u', '-', $text);
-
-        // transliterate
-        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
-
-        // remove unwanted characters
-        $text = preg_replace('~[^-\w]+~', '', $text);
-
-        // trim
-        $text = trim($text, '-');
-
-        // remove duplicate -
-        $text = preg_replace('~-+~', '-', $text);
-
-        // lowercase
-        $text = strtolower($text);
-
-        if (empty($text)) {
-            return 'n-a';
-        }
-
-        return $text;
+    function slugify($text) {        
+        return Utils::slugify($text);
     }
 
     function removeAccents($string) {
-        if ( !preg_match('/[\x80-\xff]/', $string) )
-            return $string;
-    
-        $chars = array(
-        // Decompositions for Latin-1 Supplement
-        chr(195).chr(128) => 'A', chr(195).chr(129) => 'A',
-        chr(195).chr(130) => 'A', chr(195).chr(131) => 'A',
-        chr(195).chr(132) => 'A', chr(195).chr(133) => 'A',
-        chr(195).chr(135) => 'C', chr(195).chr(136) => 'E',
-        chr(195).chr(137) => 'E', chr(195).chr(138) => 'E',
-        chr(195).chr(139) => 'E', chr(195).chr(140) => 'I',
-        chr(195).chr(141) => 'I', chr(195).chr(142) => 'I',
-        chr(195).chr(143) => 'I', chr(195).chr(145) => 'N',
-        chr(195).chr(146) => 'O', chr(195).chr(147) => 'O',
-        chr(195).chr(148) => 'O', chr(195).chr(149) => 'O',
-        chr(195).chr(150) => 'O', chr(195).chr(153) => 'U',
-        chr(195).chr(154) => 'U', chr(195).chr(155) => 'U',
-        chr(195).chr(156) => 'U', chr(195).chr(157) => 'Y',
-        chr(195).chr(159) => 's', chr(195).chr(160) => 'a',
-        chr(195).chr(161) => 'a', chr(195).chr(162) => 'a',
-        chr(195).chr(163) => 'a', chr(195).chr(164) => 'a',
-        chr(195).chr(165) => 'a', chr(195).chr(167) => 'c',
-        chr(195).chr(168) => 'e', chr(195).chr(169) => 'e',
-        chr(195).chr(170) => 'e', chr(195).chr(171) => 'e',
-        chr(195).chr(172) => 'i', chr(195).chr(173) => 'i',
-        chr(195).chr(174) => 'i', chr(195).chr(175) => 'i',
-        chr(195).chr(177) => 'n', chr(195).chr(178) => 'o',
-        chr(195).chr(179) => 'o', chr(195).chr(180) => 'o',
-        chr(195).chr(181) => 'o', chr(195).chr(182) => 'o',
-        chr(195).chr(182) => 'o', chr(195).chr(185) => 'u',
-        chr(195).chr(186) => 'u', chr(195).chr(187) => 'u',
-        chr(195).chr(188) => 'u', chr(195).chr(189) => 'y',
-        chr(195).chr(191) => 'y',
-        // Decompositions for Latin Extended-A
-        chr(196).chr(128) => 'A', chr(196).chr(129) => 'a',
-        chr(196).chr(130) => 'A', chr(196).chr(131) => 'a',
-        chr(196).chr(132) => 'A', chr(196).chr(133) => 'a',
-        chr(196).chr(134) => 'C', chr(196).chr(135) => 'c',
-        chr(196).chr(136) => 'C', chr(196).chr(137) => 'c',
-        chr(196).chr(138) => 'C', chr(196).chr(139) => 'c',
-        chr(196).chr(140) => 'C', chr(196).chr(141) => 'c',
-        chr(196).chr(142) => 'D', chr(196).chr(143) => 'd',
-        chr(196).chr(144) => 'D', chr(196).chr(145) => 'd',
-        chr(196).chr(146) => 'E', chr(196).chr(147) => 'e',
-        chr(196).chr(148) => 'E', chr(196).chr(149) => 'e',
-        chr(196).chr(150) => 'E', chr(196).chr(151) => 'e',
-        chr(196).chr(152) => 'E', chr(196).chr(153) => 'e',
-        chr(196).chr(154) => 'E', chr(196).chr(155) => 'e',
-        chr(196).chr(156) => 'G', chr(196).chr(157) => 'g',
-        chr(196).chr(158) => 'G', chr(196).chr(159) => 'g',
-        chr(196).chr(160) => 'G', chr(196).chr(161) => 'g',
-        chr(196).chr(162) => 'G', chr(196).chr(163) => 'g',
-        chr(196).chr(164) => 'H', chr(196).chr(165) => 'h',
-        chr(196).chr(166) => 'H', chr(196).chr(167) => 'h',
-        chr(196).chr(168) => 'I', chr(196).chr(169) => 'i',
-        chr(196).chr(170) => 'I', chr(196).chr(171) => 'i',
-        chr(196).chr(172) => 'I', chr(196).chr(173) => 'i',
-        chr(196).chr(174) => 'I', chr(196).chr(175) => 'i',
-        chr(196).chr(176) => 'I', chr(196).chr(177) => 'i',
-        chr(196).chr(178) => 'IJ',chr(196).chr(179) => 'ij',
-        chr(196).chr(180) => 'J', chr(196).chr(181) => 'j',
-        chr(196).chr(182) => 'K', chr(196).chr(183) => 'k',
-        chr(196).chr(184) => 'k', chr(196).chr(185) => 'L',
-        chr(196).chr(186) => 'l', chr(196).chr(187) => 'L',
-        chr(196).chr(188) => 'l', chr(196).chr(189) => 'L',
-        chr(196).chr(190) => 'l', chr(196).chr(191) => 'L',
-        chr(197).chr(128) => 'l', chr(197).chr(129) => 'L',
-        chr(197).chr(130) => 'l', chr(197).chr(131) => 'N',
-        chr(197).chr(132) => 'n', chr(197).chr(133) => 'N',
-        chr(197).chr(134) => 'n', chr(197).chr(135) => 'N',
-        chr(197).chr(136) => 'n', chr(197).chr(137) => 'N',
-        chr(197).chr(138) => 'n', chr(197).chr(139) => 'N',
-        chr(197).chr(140) => 'O', chr(197).chr(141) => 'o',
-        chr(197).chr(142) => 'O', chr(197).chr(143) => 'o',
-        chr(197).chr(144) => 'O', chr(197).chr(145) => 'o',
-        chr(197).chr(146) => 'OE',chr(197).chr(147) => 'oe',
-        chr(197).chr(148) => 'R',chr(197).chr(149) => 'r',
-        chr(197).chr(150) => 'R',chr(197).chr(151) => 'r',
-        chr(197).chr(152) => 'R',chr(197).chr(153) => 'r',
-        chr(197).chr(154) => 'S',chr(197).chr(155) => 's',
-        chr(197).chr(156) => 'S',chr(197).chr(157) => 's',
-        chr(197).chr(158) => 'S',chr(197).chr(159) => 's',
-        chr(197).chr(160) => 'S', chr(197).chr(161) => 's',
-        chr(197).chr(162) => 'T', chr(197).chr(163) => 't',
-        chr(197).chr(164) => 'T', chr(197).chr(165) => 't',
-        chr(197).chr(166) => 'T', chr(197).chr(167) => 't',
-        chr(197).chr(168) => 'U', chr(197).chr(169) => 'u',
-        chr(197).chr(170) => 'U', chr(197).chr(171) => 'u',
-        chr(197).chr(172) => 'U', chr(197).chr(173) => 'u',
-        chr(197).chr(174) => 'U', chr(197).chr(175) => 'u',
-        chr(197).chr(176) => 'U', chr(197).chr(177) => 'u',
-        chr(197).chr(178) => 'U', chr(197).chr(179) => 'u',
-        chr(197).chr(180) => 'W', chr(197).chr(181) => 'w',
-        chr(197).chr(182) => 'Y', chr(197).chr(183) => 'y',
-        chr(197).chr(184) => 'Y', chr(197).chr(185) => 'Z',
-        chr(197).chr(186) => 'z', chr(197).chr(187) => 'Z',
-        chr(197).chr(188) => 'z', chr(197).chr(189) => 'Z',
-        chr(197).chr(190) => 'z', chr(197).chr(191) => 's'
-        );
-    
-        $string = strtr($string, $chars);
-    
-        return $string;
+        return Utils::removeAccents($string);
     }
 
     function detachRS($rs){
@@ -3283,17 +3195,14 @@ class App extends \Slim\Slim{
 
         $log = key_exists('app.log.translations', $app->_config) && $app->_config['app.log.translations'];
 
-        if(is_array($translations[$file])){
-            if(key_exists($file, $translations) && is_array($translations[$file]) && key_exists($message, $translations[$file])){
-                $message = $translations[$file][$message];
-            }elseif(key_exists($message, $translations)){
-                $message = $translations[$message];
-            }elseif($log){
-                $app->applyHook("txt({$domain}.{$lcode}).missingTranslation");
-                $app->log->warn ("TXT > missing '$lcode' translation for message '$message' in domain '$domain'");
-            }
+        if(key_exists($file, $translations) && is_array($translations[$file]) && key_exists($message, $translations[$file])){
+            $message = $translations[$file][$message];
+        }elseif(key_exists($message, $translations)){
+            $message = $translations[$message];
+        }elseif($log){
+            $app->applyHook("txt({$domain}.{$lcode}).missingTranslation");
+            $app->log->warn ("TXT > missing '$lcode' translation for message '$message' in domain '$domain'");
         }
-        
 
 
         return $message;

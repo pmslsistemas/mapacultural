@@ -48,7 +48,7 @@
                 registrationFieldConfigurations: [],
                 criteriaAffirmativePolicies: MapasCulturais.affirmativePolicies || [],
                 fieldsAffiermativePolicie: {},
-                isActiveAffirmativePolicies: MapasCulturais.isActiveAffirmativePolicies == "true" ? true : false,
+                isActiveAffirmativePolicies: MapasCulturais.isActiveAffirmativePolicies ? true : false,
                 affirmativePolicieRoof: parseFloat(MapasCulturais.affirmativePoliciesRoof) || 0.00,
                 
                 debounce: 2000
@@ -66,6 +66,7 @@
             }
 
             $scope.save = function(){
+                $scope.alert = false;
                 var data = {
                     sections: $scope.data.sections,
                     criteria: [],
@@ -76,8 +77,18 @@
                     affirmativePoliciesRoof: $scope.data.affirmativePolicieRoof || 0.00
                 };
 
-                console.log(data);
-
+                if(data?.affirmativePolicies){
+                    data.affirmativePolicies.forEach((obj) => {
+                        Object.keys(obj).forEach((key) => {
+                            if(!obj[key]){
+                                $scope.alert = true;
+                                MapasCulturais.Messages.alert(labels['alertPendingAffirmativePolicies']);
+                                return;
+                            }
+                        })
+                    })
+                }
+                
                 $scope.data.criteria.forEach(function (crit) {
                     for (var i in data.sections) {
                         var section = data.sections[i];
@@ -87,12 +98,15 @@
                     }
                 });
 
-                TechnicalEvaluationMethodService.patchEvaluationMethodConfiguration(data).success(function () {
-                    MapasCulturais.Messages.success(labels.changesSaved);
-                    $scope.data.sections = data.sections;
-                    $scope.data.criteria = data.criteria;
-                    $scope.data.enableViability = data.enableViability;
-                });
+                if(!$scope.alert){
+                    TechnicalEvaluationMethodService.patchEvaluationMethodConfiguration(data).success(function () {
+                        MapasCulturais.Messages.success(labels.changesSaved);
+                        $scope.data.sections = data.sections;
+                        $scope.data.criteria = data.criteria;
+                        $scope.data.enableViability = data.enableViability;
+                    });
+                }
+               
             };
 
             $scope.addSection = function(){
@@ -212,7 +226,7 @@
                      item.fieldType == "space-field"
                 ){
 
-                    var fieldType = (Object.keys(item.config).length > 0 && item.config.hasOwnProperty('entityField')) ? item.config.entityField : item.fieldType;
+                    var fieldType = item?.config?.entityField ? item.config.entityField : item.fieldType;
 
                     var _ismultiple = false;
                     switch(fieldType) {

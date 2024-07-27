@@ -3,6 +3,341 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [5.8.15] - 2024-02-16
+### Coreções
+- Corrige a aba de avaliações da oportunidade onde poderiam algumas avaliações não serem exibidas e outras duplicadas.
+
+## [5.8.14] - 2024-01-26
+### Melhorias
+- Corrige verificação do valor no hook de que pega os campos entre fases
+
+## [5.8.13] - 2024-01-16
+### Melhorias
+- Cria novos hooks para inserção de dados dentro da tag head do html.
+
+## [5.8.12] - 2023-12-14
+### Correções 
+- Corrige permissão para que gestores não administradores do sistema modifiquem avaliação após a fase ser publicada
+
+## [5.8.11] - 2023-12-13
+### Correções 
+- Corrige permissão para que gestores modifiquem avaliação após a fase ser publicada
+
+## [5.8.10] - 2023-12-12
+### Correções 
+- Corrige exibição de formulário das avaliações dos avaliadores para o gestor
+
+## [5.8.9] - 2023-12-05
+### Correções
+- Corrige erro no processamento de campos de tadas informados no formulário de inscrição
+
+## ['5.8.8'] - 2023-11-29
+- Garante que o $entity seja carregado corretamente pegando a entidade carregada na tela no header single da inscrição
+
+## ['5.8.7'] - 2023-11-04
+- Evita que as politicas afirmativas possam ser salvas de forma parcial
+
+## ['5.8.6'] - 2023-11-04
+- Ajusta formato da data na população do front end da inscrição
+
+## [5.8.5] - 2023-11-03
+- Ajusta o deletePermissionsCache para evitar que o mesmo quebre caso não tenha uma lista de users passada
+
+## [5.8.4] - 2023-10-18
+### Melhorias não funcionais
+- Novos hooks na tela de configuração de avaliadores
+
+## [5.8.3] - 2023-10-18
+### Correções
+- Corrige a configuração manual dos avaliadores de uma inscrição pelos checkboxes na ficha de inscrição
+
+## [5.8.1] - 2023-10-18
+### Correções
+- Corrige a distribuição de inscrições entre os avaliadores
+
+## [5.8.0] - 2023-10-17
+### Melhorias
+- Impede que o número de processos de geração de cache e de jobs ultrapasse o número de processadores disponíveis
+- Refatoração na criação dos pcache, processando somente para os usuários envolvidos
+- Melhoria de performance na distribuição de inscrições entre os avaliadores
+
+## [5.7.6] - 2023-09-12
+### Melhorias
+-  Permite que a busca de agentes no gerenciador de usuários faça busca pelo nomeCompleto, nomeSocial, CPF e agentes ainda em rascunho
+
+## [5.7.5] - 2023-08-28
+### Correções
+- Cria mc-update para atualizar dados legados para a nova estrutura de condicionalidade de campos
+- Corrige importação de formularios para interpretar a nova estrutura de condicionalidade de campos
+
+## [5.7.4] - 2023-08-24
+### Melhorias
+- atualização das bibliotecas PHP para as últimas versões compatíveis com o PHP 7.2
+
+## [5.7.3] - 2023-08-23
+### Correções
+- Corrige a altura dos gráficos de linha do módulo de relatorios das oportunidades
+
+## [5.7.1] - 2023-07-21
+### Correções
+- Ajusta CSS do sidebar direito para evitar que o header sobrescreva os conteúdos dos editbox
+
+## [5.7.0] - 2023-07-13
+### Novas Funcionalidades
+- Implementa novo método de avaliação EvaluationMethodQualification
+- Implementa opção para condicionar campos do tipo a nexos
+### Melhorias
+- Ajusta definição de cores na listagem de avaliações na tela do avaliador nos métodos simples e documental
+- Ajusta estrutura de condicionalidade de campo criando colunas específicas na tabela registration_field_configuration
+- Não obriga mais um campos ser obrigatorio para ser condicionado a outro campo
+
+## [5.6.21] - 2023-07-13
+### Melhorias
+- Faz refatorações para que o módulo de relatório busque campo da fase em questão e tambem fases anteriores
+- Aplica novos filtros no módulo de relatórios
+- Remove dados mínimos exigidos para geração de grafico no módulo de relatórios
+- Ajusta posicionamento do filtro na tela do módulo de relatorios, deixando facil interpretar quais gráficos serão afetados com o filtro
+
+## [5.6.20] - 2023-06-06
+### Melhorias
+- define o tempo de duração das sessões para 2 horas, por padrão
+- possibilidade de configurar o tempo de duração das sessões pela variável de ambiente `SESSION_TIMEOUT`
+
+## [5.6.19] - 2023-05-25
+### Correções
+- Cria pasta DoctrineProxies durante o build, corrindo redeploy da aplicação que estava quebrado por falta da pasta
+
+## [5.6.18] - 2023-05-25
+### Correções
+- Melhorias na visualização das telas com tabelas de inscrições em dispositivos mobile
+
+## [5.6.17] - 2023-05-18
+### Correções
+- Ajusta para que em oportunidades multifases, o preview do formulario das fases posteriores exibam as categorias evitando que os campos condicionados fiquem ocultos
+
+## [5.6.16] - 2023-05-17
+### Correções
+- Corrige formulário de inscrição das fases, ocultando a seleção das categorias e dos agentes relacionados
+
+### Melhorias
+- Atualiza o Node.js para a versão 14
+- Reestruturação dos arquivos Dockerfile para o processo de build aproveitar melhor os caches
+
+## [5.6.15] - 2023-05-12
+### Correções
+- Corrige módulo de deníncia e contato para usar o nome do dono da entidade ao invez do usuário logado
+
+## [5.6.14] - 2023-05-12
+### Correções
+- remove botões de adicionar subespaço e de adicionar subagente das páginas single e edit de agente e projeto, pois levavam para uma página que não existe mais
+
+## [5.6.13] - 2023-05-12
+### Correções
+- corrige configuração de vinculação de espaço relacionado na configuração do formulário de inscrição em oportunidades
+
+### Melhorias 
+- adiciona MailHog no ambiente de desenvolvimento para teste dos envios
+
+## [5.6.17] - 2023-05-18
+### Correções
+- Ajusta para que em oportunidades multifases, o preview do formulario das fases posteriores exibam as categorias evitando que os campos condicionados fiquem ocultos
+
+## [5.6.16] - 2023-05-17
+### Correções
+- Corrige formulário de inscrição das fases, ocultando a seleção das categorias e dos agentes relacionados
+
+### Melhorias
+- Atualiza o Node.js para a versão 14
+- Reestruturação dos arquivos Dockerfile para o processo de build aproveitar melhor os caches
+
+## [5.6.15] - 2023-05-12
+### Correções
+- Corrige módulo de deníncia e contato para usar o nome do dono da entidade ao invez do usuário logado
+
+## [5.6.14] - 2023-05-12
+### Correções
+- remove botões de adicionar subespaço e de adicionar subagente das páginas single e edit de agente e projeto, pois levavam para uma página que não existe mais
+
+## [5.6.13] - 2023-05-12
+### Correções
+- corrige configuração de vinculação de espaço relacionado na configuração do formulário de inscrição em oportunidades
+
+## [5.6.12] - 2023-04-17
+### Correções
+- corrige erro de js que estava quebrando a edição de oportuidades em algumas situações
+
+## [5.6.11] - 2023-04-17
+### Melhorias
+- garante que os CPFs e CNPJs sejam exibidos e salvos formatados (XXX.XXX.XXX-XX e XX.XXX.XXX/YYYY-ZZ)
+- unserialize nos metadados CPF e CNPJ que retorna do campo documento caso não esteja preenchido
+
+## [5.6.10] - 2023-04-17
+### Melhorias
+- refatoração do db-update que popula os metadados dos documentos para rodar mais rapidamente
+
+## [5.6.9] - 2023-04-17
+### Melhorias
+- melhora performance do endpoint que retorna avaliações
+- melhora performance da criação dos caches de permissão das oportunidades e inscrições
+
+## [5.6.8] - 2023-04-17
+### Melhorias
+- Faz com que sidebar direito, fique com scroll do campo dowloads sem max-higth no modo de edição da oportunidade
+
+## [5.6.7] - 2023-04-06
+### Correção
+- Ajusta erro de carregamento dos campos liberados para os avaliadores em oportunidades multifases
+
+## [5.6.6] - 2023-03-31
+### Correção
+- Evita que ao exportar a planila de inscritos se quebre quando a politicas afirmativas esta ativa e nao existe rule configurada
+- Corrige erro ao salvar metadado que define se as politicas afirmativas estão ativas ou não
+- Corrige front-end para que quando a politica afirmativa esteja ativa, o box de configuração permaneça aberto
+
+## [5.6.5] - 2023-03-28
+### Melhorias
+- Adiciona botão para fazer a validação de erros da inscrição no formulario de inscrição
+### Correção
+- Redefine método saveRegistration para apenas salvar a inscrição e não computar erros do formulário
+- Ajusta o scroll para que quando existir error no formulário ele pare corretamente sobre o elemento
+- Ajusta método sendRegistration para ele só fazer a validação de erros após salvar a inscrição
+- Limpa mensagem de erro do anexo após o envio de arquivos
+
+## [5.6.4] - 2023-03-27
+### Correção
+- Na tela do avaliador, corrige o avanço automático das avaliações ao finalizar o processo em uma determinada inscrição
+
+## [5.6.3] - 2023-03-24
+### Melhorias
+- Passa processo de passar dados do metadado documento para o metadados CPF ou CNPJ do db-update para o mc-update para melhorar performace
+
+## [5.6.2] - 2023-03-14
+### Correções
+- Corrige filtro de avaliações na tela do avaliador
+## [5.6.1] - 2023-03-10
+### Correções
+- Evita que ao importar inscrições entre fases, não seja disparado e-mail de notificação de envio da inscrição
+
+## [5.6.0] - 2023-03-09
+### Novas Funcionalidade
+- No formulário de inscrição, exibe os erros de preenchimento no final da página para facilitar identificação dos campos com erros
+- Impede que usuários comuns criem novos agentes individuais
+
+### Melhorias
+- Coloca scroll na modal de criação rapida de entidades
+- Remove botões de criação de entidades da home
+- Define forma de bloquear acesso a áreas que requer autenticação se os dados obrigatórios do agente não estão preenchidos
+- Garante que todo agente principal seja criado como agente individual
+- Faz com que somente administradores possam alterar o tipo do agente
+- Remove opção de troca de perfil principal para evitar que sejam atribuídos perfis do tipo coletivo como agente principal para atender LGPD
+
+### Correções
+- Evita que o modal de criação rápida de entidades seja acessado quando o usuários não estiver autenticado
+- Faz com que Job SendMailNotification retorne o status do disparo de e-mail para concluir o processo do Job e evitar erros
+
+## [5.5.23] - 2023-04-17
+### Melhorias
+- melhora performance do endpoint que retorna avaliações
+- melhora performance da criação dos caches de permissão das oportunidades e inscrições
+
+## [5.5.15] - 2023-03-06
+### Correções
+- Ajusta verificação que evita que quebre quando não existe dados do lockedFields
+## [5.5.14] - 2023-03-06
+### Correções
+- Evita que ao importar inscrições entre fases, não seja disparado e-mail de notificação da criação da inscrição
+- Evita que quebre quando não existe dados do lockedFields
+
+## [5.5.13] - 2023-02-24
+### Correções
+- Verifica se a taxonomia função existe antes de utilizar seus atributos
+
+## [5.5.12] - 2023-02-17
+### Correções
+- Faz correção do bloqueio dos campos atravéz dos selos, caso seja bloqueado campos do tipo location
+
+## [5.5.11] - 2023-02-16
+### Melhorias
+- Melhora performance da criação de revisões de agentes com muitas propriedades
+
+## [5.5.10] - 2023-02-10
+### Correções
+- Corrige erro da acentuação no upload de arquivos
+
+## [5.5.9] - 2023-02-09
+### Melhorias
+- Cria template de e-mail para enviar certificado de solicitação de recurso ao proponente
+
+## [5.5.8] - 2023-02-06
+### Melhorias
+- Cria hooks que possibilitam manipular sidebar direito na ficha de inscrição
+- Cria novo template de e-mail para o recurso usando padrão header+footer+imagem
+### Correções
+- seta como vazio campo escolaridade do agent caso esteja com valor não informado
+- Corrige função append do ajaxUpload para entender quando o registro do grupo do arquivo for para um único arquivo
+
+## [5.5.7] - 2023-01-26
+### Correções
+- Corrige jsonSerialize da registration para quando a ficha é acessada por um gestor da oportunidade o mesmo poça ter acesso aos campos sem necessidade de liberação na permissão dos avaliadores
+
+## [5.5.6] - 2023-01-18
+### Correções
+- bugfix registration_field_configuratios ao passar um campo tipo @ para um campo normal
+
+## [5.5.5] - 2023-01-09
+### Correções
+- Evita que autosave execute na ficha de inscrição após a mesma estar enviada
+- Corrige erros de carregamento do thumbnail do avatar nos templates referente ao agente caso nao encontre o avatar
+- Corrige problema de duplicidade ao processar a planilha de importação de eventos
+## [5.5.4] - 2022-12-30
+### Correções
+- corrige validação de CNPJ e CPF após criação dos novos metadados
+
+## [5.5.3] - 2022-12-28
+### Correções
+- corrige redirecionamento após criação de apps
+
+## [5.5.2] - 2022-12-27
+### Correções
+- Corrige validação e definição de campos nulos
+- Formulário de inscrição envia valores falsos não nulos
+- Validação de campos numéricos obrigatórios vazios
+
+## [5.5.1] - 2022-12-23
+### Correções
+- Cria db-update para setar campos de CPF e CNP nos agentes com base no dados do campo documento
+
+## [5.5.0] - 2022-12-22
+### Correções
+- Remove definição da configuração availableAgentFields no Module registrationFieldTypes
+- Corrige carregamento dos campos @ na tela de configuração de campo garantindo que todos ja tenham sido registrados
+- Corrige erro na tela do certificado que impedia a exibição ao tentar verificar a expiração do selo
+
+### Melhorias
+- atualiza o updateTimestamp da entidade quando modifica um metadado
+- opção de bloqueio de campos das entidades seladas
+- Cria hooks no modulo sendMailNotification
+- Possibilita que seja possivel controlar disparo de e-mails de criação e aprovação no modulo sendMailNotification
+
+### Novas Funcionalidade
+- Bloqueio dos campos através dos selos
+- Adciona novos campos para o cadastro de agente individual: 
+    - Nome social
+    - Escolaridade
+    - Pessoa com deficiência
+    - Comunidades tradicionais
+    - CNPJ (MEI)
+    - Pessoa idosa
+
+## [5.4.10] - 2023-04-17
+### Melhorias
+- melhora performance do endpoint que retorna avaliações
+- melhora performance da criação dos caches de permissão das oportunidades e inscrições
+
+## [5.4.7] - 2023-02-16
+- melhora performance da criação de revisões de agentes com muitas propriedades
+
 ## [5.4.6] - 2023-01-26
 ### Correções
 - Corrige jsonSerialize da registration para quando a ficha é acessada por um gestor da oportunidade o mesmo poça ter acesso aos campos sem necessidade de liberação na permissão dos avaliadores
@@ -24,19 +359,38 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.4.2] - 2022-12-20
 ### Correções
 - Evita que ao processar a planilha do importador de eventos, caia em timeout
+
 ## [5.4.1] - 2022-12-19
 ### Correções
 - Corrige importador de enventos interpretanto Avatar, Banner e Galeria como campos obrigatórios
+
 ## [5.4.0] - 2022-12-14
 ### Correções
 - Atualiza updateTimestamp das entidades quando modificado um metadado
-
 ### Novas Funcionalidade
 - Importação de eventos por planilha
+## [5.3.43] - 2023-04-17
+### Melhorias
+- melhora performance do endpoint que retorna avaliações
+- melhora performance da criação dos caches de permissão das oportunidades e inscrições
+
+## [5.3.42] - 2023-02-16
+- melhora performance da criação de revisões de agentes com muitas propriedades
+
+## [5.3.41] - 2023-01-26
+### Correções
+- Corrige jsonSerialize da registration para quando a ficha é acessada por um gestor da oportunidade o mesmo poça ter acesso aos campos sem necessidade de liberação na permissão dos avaliadores
+
+## [5.3.39] - 2022-12-27
+### Correções
+- Corrige validação e definição de campos nulos
+- Formulário de inscrição envia valores falsos não nulos
+- Validação de campos numéricos obrigatórios vazios
 
 ## [5.3.38] - 2022-11-30
 ### Correções
 - Corrige verificação de criação das taxnomias
+
 ## [5.3.37] - 2022-11-18
 ### Correções
 - corrige definição de valor default para os metadados
@@ -44,6 +398,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.3.36] - 2022-11-16
 ### Correções
 - typo no módulo Notifications 
+### Melhorias
+- Cria novos campos no cadastro do agente
 
 ## [5.3.35] - 2022-11-16
 ### Correções

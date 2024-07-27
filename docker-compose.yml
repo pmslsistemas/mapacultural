@@ -25,11 +25,7 @@ services:
     restart: always
     ports:
       - "9000:9000"
-    deploy:
-      resources:
-        limits:
-          cpus: "3"
-          memory: 7168M
+    
     volumes:
       - ./docker-data/assets:/var/www/html/assets
       - ./docker-data/public-files:/var/www/html/files

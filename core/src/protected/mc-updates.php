@@ -209,5 +209,89 @@ return [
             }
         });
     },
+    'Definição dos cammpos cpf e cnpj com base no documento' => function(){
+        $app = \MapasCulturais\App::i();
+        /**
+         * Header do arquivo txt
+         * AGENTE_ID | NOME | NOME_COMPLETO | EMAIL_PRIVADO | TIPO_ATUAL| OPERACAO
+         */
+        $txt = "";
+        DB_UPDATE::enqueue('Agent', "status > 0", function (MapasCulturais\Entities\Agent $agent) use ($app, &$txt){
+            $conn = $app->em->getConnection();
+
+            $_types = [
+                1 => "individual",
+                2 => "coletivo",
+            ];
+            
+            if (!$agent->documento) {
+                $op = "Agente sem documento definido";
+                $txt .= "{$agent->id} | {$agent->name} | {$agent->nomeCompleto} | {$agent->emailPrivado} | {$_types[$agent->type->id]} | {$op} \n";
+                $app->log->debug($agent->id . " " . $op);
+            }else{
+                $doc = preg_replace('/[^0-9]/i', '', $agent->documento);
+                $type = (strlen($doc) > 11) ? "CNPJ" : "CPF";
+
+                if ($type == "CPF") {
+                    $validate = \MapasCulturais\Validator::cpf()->validate($agent->documento);
+                } else {
+                    $validate = \MapasCulturais\Validator::cnpj()->validate($agent->documento);
+                }
+
+                if ($validate) {
+                    $_type = strtolower($type);
+                    $id = $conn->fetchColumn("SELECT nextval('agent_meta_id_seq'::regclass)");
+                    $conn->insert('agent_meta', ['id' => $id, 'object_id' => $agent->id, 'key' => $_type, 'value' => $agent->documento]);
+                    
+                    $op = "Definido {$type} para o agente";
+                    $txt .= "{$agent->id} | {$agent->name} | {$agent->nomeCompleto} | {$agent->emailPrivado} | {$_types[$agent->type->id]} | {$op} \n";
+                    $app->log->debug($agent->id . " " . $op);
+                    
+                } else {
+                    $op = "{$type} do agente é inválido";
+                    $txt .= "{$agent->id} | {$agent->name} | {$agent->nomeCompleto} | {$agent->emailPrivado} | {$_types[$agent->type->id]} | {$op} \n";
+                    $app->log->debug($agent->id . " " . $op);
+                }
+            }
+
+            $fileName = "mcupdate1_documento.txt";
+            $dir = PRIVATE_FILES_PATH . "mcupdate_files";
+            if (!file_exists($dir)) {
+                mkdir($dir, 775);
+            }
+
+            $path = $dir . "/" . $fileName;
+            $fp = fopen($path, "a+");
+            fwrite($fp, $txt);
+            fclose($fp);
+        });
+
+        
+    },
+    "Atualiza campos condicionados para funcionar na nova estrutura" => function() {
+        DB_UPDATE::enqueue('RegistrationFieldConfiguration', "id > 0", function (MapasCulturais\Entities\RegistrationFieldConfiguration $_field){
+            $config = $_field->config;
+            if($config && isset($config['require']) && isset($config['require']['condition'])){
+                $required = $config['require'];
+
+                if(in_array("field", array_keys($required)) && in_array("value", array_keys($required))){
+                    if($required['field'] && $required['value'] && $required['condition']){
+                        $_field->conditionalField = $required['field'];
+                        $_field->conditionalValue = $required['value'];
+                        $_field->conditional = (!$_field->conditionalValue || !$_field->conditionalField) ? false : true;
+
+                        unset($config['require']['condition']);
+                        unset($config['require']['field']);
+                        unset($config['require']['value']);
+                        $_field->config =  $config;
+
+                        $_field->save(true);
+                    }
+
+                }
+            }
+        });
+      
+    }
 
 ];

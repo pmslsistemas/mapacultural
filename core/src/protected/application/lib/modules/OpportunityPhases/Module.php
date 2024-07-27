@@ -209,6 +209,20 @@ class Module extends \MapasCulturais\Module{
         $self = $this;
         $registration_repository = $app->repo('Registration');
 
+        $app->hook('view.partial(singles/registration-edit--categories).params', function(&$params, &$template) use ($app) {
+            if($this->controller->requestedEntity->opportunity->isOpportunityPhase && !$this->controller->requestedEntity->preview) {
+                $template = '_empty';
+                return;
+            }
+        });
+
+        $app->hook('view.partial(singles/registration-edit--agents).params', function(&$params, &$template) use ($app) {
+            if($this->controller->requestedEntity->opportunity->isOpportunityPhase) {
+                $template = '_empty';
+                return;
+            }
+        });
+
         $app->view->enqueueStyle('app', 'plugin-opportunity-phases', 'css/opportunity-phases.css');
 
         $app->hook('view.render(<<*>>):before', function() use($app) {
@@ -296,7 +310,8 @@ class Module extends \MapasCulturais\Module{
             if(!$this->canUser('viewPrivateData')) {
                 return;
             }
-            if(empty($value) && ($previous_phase = $this->previousPhase)){
+
+            if(is_null($value) && ($previous_phase = $this->previousPhase)){
                 $previous_phase->registerFieldsMetadata();
 
                 $app->disableAccessControl();

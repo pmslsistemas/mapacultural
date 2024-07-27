@@ -250,25 +250,24 @@ class Registration extends \MapasCulturais\Entity
     function consolidateResult($flush = false, $caller = null){
         $app = App::i();
         
-        $ac_on = $app->isAccessControlEnabled();
-        if ($ac_on) $app->disableAccessControl();
+        $app->disableAccessControl();
         
         $em = $this->getEvaluationMethod();
 
         $result = $em->getConsolidatedResult($this);
 
         // para que dentro do hook as permissões funcionem
-        if ($ac_on) $app->enableAccessControl();
+        $app->enableAccessControl();
         
         $app->applyHookBoundTo($this, 'entity(Registration).consolidateResult', [&$result, $caller]);
         
-        if ($ac_on) $app->disableAccessControl();
+        $app->disableAccessControl();
         
         $this->consolidatedResult = $result;
         
         $this->save($flush);
         
-        if($ac_on) $app->enableAccessControl(); 
+        $app->enableAccessControl(); 
     }
 
     static function isPrivateEntity(){
@@ -293,7 +292,7 @@ class Registration extends \MapasCulturais\Entity
             'projectName' => $this->projectName,
             'number' => $this->number,
             'category' => $this->category,
-            'owner' => $this->owner->simplify('id,name,singleUrl'),
+            'owner' => $this->owner->simplify('id,name,lockedFields,singleUrl'),
             'agentRelations' => [],
             'files' => [],
             'singleUrl' => $this->singleUrl,
@@ -544,6 +543,8 @@ class Registration extends \MapasCulturais\Entity
         } else {
             throw new \Exception('Invalid __valuersExceptionsList format');
         }
+
+        $this->enqueueToPCacheRecreation();
     }
 
     function setValuersExcludeList(array $user_ids){
@@ -736,7 +737,6 @@ class Registration extends \MapasCulturais\Entity
 
         $app->enableAccessControl();
         
-        // $app->enqueueEntityToPCacheRecreation($this->opportunity);
         $app->enqueueEntityToPCacheRecreation($this);
 
         $app->applyHookBoundTo($this, "entity($this->hookClassPath).send:after");
@@ -849,8 +849,15 @@ class Registration extends \MapasCulturais\Entity
                 continue;
             }
 
+            $field_required = $rfc->required;
+            if($rfc->conditional){
+                $_fied_name = $rfc->conditionalField;
+                $_fied_value = $rfc->conditionalValue;
+                $field_required = $this->$_fied_name == $_fied_value && $rfc->required;
+            }
+
             $errors = [];
-            if($rfc->required){
+            if($field_required){
                 if(!isset($this->files[$rfc->fileGroupName])){
                     $errors[] = \MapasCulturais\i::__('O arquivo é obrigatório.');
                 }
@@ -873,20 +880,13 @@ class Registration extends \MapasCulturais\Entity
 
             $field_name = $field_prefix . $field->id;
             $field_required = $field->required;
-            if(isset($metadata_definition->config['registrationFieldConfiguration']->config['require'])){
-                $cond_require =  $metadata_definition->config['registrationFieldConfiguration']->config['require'];
-
-                if ($cond_require['condition']) {
-
-                    if(is_object($cond_require)){
-                        $cond_require = (array) $cond_require;
-                    }
-                    
-                    $_fied_name = isset($cond_require['field']) ? $cond_require['field'] : null;
-                    $_fied_value = isset($cond_require['value']) ? $cond_require['value'] : null;
-        
-                    $field_required = $_fied_name && $this->$_fied_name == $_fied_value;
-                }
+            
+            if($metadata_definition && $metadata_definition->config && $metadata_definition->config['registrationFieldConfiguration'] && $metadata_definition->config['registrationFieldConfiguration']->conditional){
+                $conf =  $metadata_definition->config['registrationFieldConfiguration'];
+              
+                $_fied_name = $conf->conditionalField;
+                $_fied_value = $conf->conditionalValue;
+                $field_required = $this->$_fied_name == $_fied_value && $field->required;
             }
 
             $errors = [];
@@ -1132,16 +1132,18 @@ class Registration extends \MapasCulturais\Entity
         $result = $user->is('admin') || $this->userHasControl($user);
         return $result;
     }
-    protected function canUserEvaluate($user){
-        if($user->is('guest')){
-            return false;
-        }
 
-        if($this->opportunity->publishedRegistrations){
+    protected function canUserEvaluateOnTime($user){
+        if($user->is('guest')){
             return false;
         }
         
         $evaluation_method_configuration = $this->getEvaluationMethodConfiguration();
+        
+        if (!$evaluation_method_configuration) {
+            return false;
+        }
+
         $valuers = $evaluation_method_configuration->getRelatedAgents('group-admin', true);
         
         $is_valuer = false;
@@ -1160,10 +1162,22 @@ class Registration extends \MapasCulturais\Entity
         if(!$is_valuer){
             return false;
         }
-    
+        
+        return $this->canUserViewUserEvaluation($user);
+    }
+
+    protected function canUserEvaluate($user){
+        if (!$this->opportunity->evaluationMethodConfiguration) {
+            return false;
+        }
+
+        if($this->opportunity->publishedRegistrations){
+            return false;
+        }
+
+        $can = $this->canUserEvaluateOnTime($user);
+
         $evaluation = $this->getUserEvaluation($user);
-    
-        $can = $this->canUserViewUserEvaluation($user);
 
         $evaluation_sent = false;
 
@@ -1178,7 +1192,12 @@ class Registration extends \MapasCulturais\Entity
         if($this->status <= 0 || $user->is('guest')) {
             return false;
         }
+
         $app = App::i();
+
+        if ($this->opportunity->canUser('@control', $user)) {
+            return true;
+        }
 
         $can = $this->getEvaluationMethod()->canUserEvaluateRegistration($this, $user);
 
@@ -1219,20 +1238,25 @@ class Registration extends \MapasCulturais\Entity
         $canUserEvaluateNextPhase = false;
         if($this->getMetadata('nextPhaseRegistrationId') !== null) {
             $next_phase_registration = App::i()->repo('Registration')->find($this->getMetadata('nextPhaseRegistrationId'));
-            if ($next_phase_registration) {
-                $canUserEvaluateNextPhase = $this->getEvaluationMethod()->canUserEvaluateRegistration($next_phase_registration, $user);    
+            if ($next_phase_registration && $next_phase_registration->evaluationMethod) {
+                $canUserEvaluateNextPhase = $next_phase_registration->evaluationMethod->canUserEvaluateRegistration($next_phase_registration, $user);    
             }            
         }
 
-        $canUserEvaluate = $this->getEvaluationMethod()->canUserEvaluateRegistration($this, $user) || $canUserEvaluateNextPhase;
+        $em = $this->evaluationMethod;
+        $canUserEvaluate = $em && $em->canUserEvaluateRegistration($this, $user) || $canUserEvaluateNextPhase;
 
         return $can || $canUserEvaluate;
     }
 
     function getExtraPermissionCacheUsers(){
-        $users = $this->getEvaluationMethodConfiguration()->getUsersWithControl();
+        if($this->status > 0) {
+            $valuers = $this->getEvaluationMethodConfiguration()->getUsersWithControl();
+        } else {
+            $valuers = [];
+        }
 
-        $users = array_merge($users, $this->opportunity->getUsersWithControl());
+        $users = array_merge($valuers, $this->opportunity->getUsersWithControl());
         
         if($this->nextPhaseRegistrationId){
             $next_phase_registration = App::i()->repo('Registration')->find($this->nextPhaseRegistrationId);
@@ -1280,11 +1304,15 @@ class Registration extends \MapasCulturais\Entity
      * @param \MapasCulturais\Entities\User $user
      * @return \MapasCulturais\Entities\RegistrationEvaluation
      */
-    function getUserEvaluation(User $user = null){
+    function getUserEvaluation(\MapasCulturais\UserInterface $user = null){
         $app = App::i();
         if(is_null($user)){
             $user = $app->user;
         }
+        if ($user->is('guest')) {
+            return null;
+        }
+
         $evaluation = App::i()->repo('RegistrationEvaluation')->findOneBy([
             'registration' => $this,
             'user' => $user

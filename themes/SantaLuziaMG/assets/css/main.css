@@ -2234,7 +2234,9 @@ article.seal .header-image {
   -moz-box-sizing: border-box;
   background: #fff;
   border-radius: 0 0 10px 10px;
-  padding: 0.65rem; }
+  padding: 0.65rem;
+  position: relative;
+  z-index: 2; }
   @media screen and (min-width: 768px) {
     .main-content {
       float: left;
@@ -2763,6 +2765,15 @@ nav.sidebar-panel ul {
 
 /* =Barra lateral
 -------------------------------------------------------------- */
+#sidebars {
+  position: sticky;
+  top: 78px;
+  display: contents;
+  justify-content: space-between; }
+  @media (max-width: 1199px) {
+    #sidebars {
+      flex-direction: column; } }
+
 .sidebar {
   position: relative;
   box-sizing: border-box;
@@ -2783,14 +2794,20 @@ nav.sidebar-panel ul {
     margin-top: 8px; }
 
 .sidebar-left {
-  overflow: visible; }
+  overflow: visible;
+  position: relative;
+  height: calc(100vh - 78px);
+  float: left; }
   @media screen and (min-width: 768px) and (max-width: 1199px) {
     .sidebar-left {
       float: right;
-      width: 25%;
       padding-bottom: 0;
       margin-bottom: 0;
       overflow: visible; } }
+  @media screen and (max-width: 1199px) {
+    .sidebar-left {
+      height: 100%;
+      /* width: 25%; */ } }
   @media screen and (min-width: 1200px) and (max-width: 1366px) {
     .sidebar-left {
       float: left;
@@ -2809,16 +2826,10 @@ nav.sidebar-panel ul {
   @media screen and (max-width: 1100px) {
     .sidebar-left #registrations-list-container {
       display: none; } }
-  @media screen and (max-width: 1366px) and (min-width: 1200px) {
-    .sidebar-left #registrations-list-container {
-      width: 20%; } }
   .sidebar-left #registrations-list-container {
-    position: fixed;
-    margin-right: -1.5em;
-    margin-left: -1.5em;
-    width: 14.5%;
     display: block;
-    font-size: .75em; }
+    font-size: .75em;
+    width: 100%; }
     .sidebar-left #registrations-list-container h4 {
       margin-bottom: 10px; }
     .sidebar-left #registrations-list-container input#registrations-list--filter {
@@ -2845,6 +2856,8 @@ nav.sidebar-panel ul {
           background-color: #fcc !important; }
         .sidebar-left #registrations-list-container .registrations-list .registration-item.current {
           background: white !important; }
+        .sidebar-left #registrations-list-container .registrations-list .registration-item.finish {
+          background: #fcfcfc !important; }
         .sidebar-left #registrations-list-container .registrations-list .registration-item .registration-evaluated {
           font-style: italic;
           font-size: 10px;
@@ -2854,18 +2867,25 @@ nav.sidebar-panel ul {
         .sidebar-left #registrations-list-container .registrations-list .registration-item .registration-category {
           font-style: italic; }
 
-@media screen and (min-width: 768px) {
-  .sidebar-right {
-    float: right; } }
-@media screen and (min-width: 768px) and (max-width: 1199px) {
-  .sidebar-right {
-    width: 25%; } }
-@media screen and (min-width: 1200px) and (max-width: 1366px) {
-  .sidebar-right {
-    width: 20%; } }
-@media screen and (min-width: 1367px) {
-  .sidebar-right {
-    width: 25%; } }
+.sidebar-right {
+  float: right; }
+  @media screen and (min-width: 768px) {
+    .sidebar-right {
+      float: right; } }
+  @media screen and (min-width: 768px) and (max-width: 1199px) {
+    .sidebar-right {
+      width: 100%; } }
+  @media screen and (min-width: 1200px) and (max-width: 1366px) {
+    .sidebar-right {
+      width: 20%; } }
+  @media screen and (min-width: 1367px) {
+    .sidebar-right {
+      width: 25%; } }
+  .sidebar-right .evaluation-form {
+    position: unset;
+    width: 100%;
+    padding: 0;
+    overflow: hidden; }
 
 @media screen and (min-width: 768px) {
   body.action-single .sidebar-left {
@@ -2899,14 +2919,14 @@ nav.sidebar-panel ul {
     color: #EA98B5; }
 
 .sidebar.agent {
-  border-top-color: #4E888A; }
+  border-top-color: #4E888A;
+  /* @media only screen and (max-width: 982px) {
+      margin-top: 20%;
+  } */ }
   .sidebar.agent:before {
     border-top-color: #4E888A !important; }
   .sidebar.agent .widget-list-item > a {
     color: #4E888A; }
-  @media only screen and (max-width: 982px) {
-    .sidebar.agent {
-      margin-top: 20%; } }
 
 .sidebar.space {
   border-top-color: #897768; }
@@ -2992,13 +3012,14 @@ nav.sidebar-panel ul {
   list-style-type: none;
   overflow: hidden;
   margin: 0;
-  position: absolute;
   z-index: 100; }
   @media screen and (max-width: 1366px) and (min-width: 1200px) {
     .breadcrumb {
+      position: absolute;
       margin: -1px 0 0 20%; } }
   @media screen and (min-width: 1367px) {
     .breadcrumb {
+      position: absolute;
       margin: -1px 0 0 15%; } }
   .breadcrumb li {
     background-color: #fafafa;
@@ -3475,12 +3496,11 @@ nav.sidebar-panel ul {
   text-align: left; }
   @media screen and (max-width: 768px) {
     .alert {
-      display: block !important;
-      position: absolute !important;
+      clear: both;
+      display: block;
       left: 0;
       right: 0;
-      margin: 0;
-      margin-right: 1em;
+      margin: 1em;
       padding: 0.20rem 2.5rem; } }
   .alert.info {
     background: #cff;
@@ -3520,6 +3540,9 @@ nav.sidebar-panel ul {
 
 #editable-entity .alert {
   margin-bottom: -1em; }
+  @media screen and (max-width: 768px) {
+    #editable-entity .alert {
+      position: absolute !important; } }
 
 .widget {
   position: relative;
@@ -3975,6 +3998,13 @@ mc-select ul {
 .edit-box textarea,
 .edit-box select {
   width: 100%; }
+
+.edit-input {
+  display: flex;
+  gap: 5px; }
+  .edit-input label {
+    float: left;
+    width: 50%; }
 
 .edit-box input[type="checkbox"], .edit-box input[type="radio"], .edit-box input[type="submit"] {
   width: auto; }
@@ -5065,8 +5095,11 @@ h1 .icon {
   #filtro-inscritos input {
     width: 100%; }
 
+@media screen and (max-width: 992px) {
+  .header-inscritos {
+    text-align: right; } }
+
 .registrations-table, .my-registrations {
-  display: none;
   width: 100%;
   max-width: 100%;
   margin-bottom: 2.6rem;
@@ -5583,6 +5616,30 @@ h1 .icon {
 #registration-attachments textarea {
   white-space: nowrap;
   min-height: 75px; }
+
+.validation-fields-errors .title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: bolder;
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  color: red; }
+.validation-fields-errors .text {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 150;
+  font-family: Open Sans,Helvetica,Arial,sans-serif;
+  color: red; }
+.validation-fields-errors a span {
+  font-size: 12px;
+  font-weight: 100;
+  cursor: pointer;
+  font-weight: bolder;
+  display: inline-block;
+  color: red; }
+.validation-fields-errors a span:hover {
+  text-decoration: underline;
+  text-decoration-color: red;
+  color: red; }
 
 editable-multiselect .help, editable-singleselect .help {
   margin-top: -5px;

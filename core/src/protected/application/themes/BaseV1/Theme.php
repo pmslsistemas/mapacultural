@@ -5,9 +5,8 @@ namespace MapasCulturais\Themes\BaseV1;
 use MapasCulturais;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
-use MapasCulturais\Entities\Notification;
-use Respect\Validation\length;
 use MapasCulturais\i;
+use MapasCulturais\Utils;
 
 
 class Theme extends MapasCulturais\Theme {
@@ -778,6 +777,16 @@ class Theme extends MapasCulturais\Theme {
     protected function _init() {
         $app = App::i();
 
+        $app->hook('template(seal.edit.tabs):end',function(){
+            $this->part('tab',['id'=>'locked-fields', 'label'=> i::__('Bloqueio de campos')]);
+        });
+
+        $app->hook('template(seal.edit.tabs-content):end',function(){
+            $entity = $this->controller->requestedEntity;
+            $this->includeSealAssets();
+            $this->part('singles/seal-locked-fields', ['entity'=>$entity]);
+        });
+
         if(!$app->user->is('guest') && $app->user->profile->status < 1){
             $app->hook('view.partial(nav-main-user).params', function($params, &$name){
                 $name = 'header-profile-link';
@@ -1025,6 +1034,13 @@ class Theme extends MapasCulturais\Theme {
             return $formatted;
         };
 
+        $app->hook("API.find(agent).params", function(&$api_params) use ($app){
+            if($app->request->headers->get('Referer')){
+                $api_params['status'] = 'GTE(-10)';
+                $api_params['@permissions'] = 'view';
+            }
+        });
+
         // faz a keyword buscar pelo documento do owner nas inscrições
         $app->hook('repo(Registration).getIdsByKeywordDQL.join', function(&$joins, $keyword) use($format_doc) {
 
@@ -1080,6 +1096,47 @@ class Theme extends MapasCulturais\Theme {
             }
             $where .= " OR unaccent(lower(m.value)) LIKE unaccent(lower(:keyword))";
             $where .= " OR unaccent(lower(sp.name)) LIKE unaccent(lower(:keyword))";
+        });
+
+         /**
+         * Faz JOIN com a tabela Agent para poder fitrar por nome nas keyowrds
+         */
+        $app->hook('repo(Agent).getIdsByKeywordDQL.join', function (&$joins, $keyword) {
+            $joins .= "
+                LEFT JOIN 
+                    e.__metadata nomeCompleto 
+                WITH nomeCompleto.key = 'nomeCompleto'
+                
+                LEFT JOIN 
+                    e.__metadata nomeSocial 
+                WITH nomeSocial.key = 'nomeSocial'
+                
+                ";
+
+            if (strlen(preg_replace("/\D/", '', $keyword)) >= 11) {
+                $joins .= "
+                    LEFT JOIN 
+                        e.__metadata doc 
+                    WITH doc.key = 'documento'";
+            }
+        });
+
+        /**
+         * Filtra usuários por palavras chaves na view user-management
+         */
+        $app->hook('repo(Agent).getIdsByKeywordDQL.where', function (&$where, $keyword) {
+            $or = $where ? "OR" : "";
+            $where .= " {$or}
+            (
+                unaccent(lower(nomeCompleto.value)) LIKE unaccent(lower(:keyword)) OR
+                unaccent(lower(nomeSocial.value)) LIKE unaccent(lower(:keyword))
+            )";
+
+            $doc = preg_replace("/\D/", '', $keyword);
+            if (strlen($doc) >= 11) {
+                $formated_doc = Utils::formatCnpjCpf($doc);
+                $where .= " OR doc.value = '{$doc}' OR doc.value = '{$formated_doc}'";
+            }
         });
 
         $theme = $this;
@@ -1343,6 +1400,61 @@ class Theme extends MapasCulturais\Theme {
                 'v::intVal()->positive()' => 'O valor deve ser um número inteiro positivo'
             ]
         ));
+    }
+
+    function getLockedFieldsSeal(){
+        $exclude_list = [
+            'id',
+            'createTimestamp',
+            'status',
+            'userId',
+            'updateTimestamp',
+            '_subsiteId',
+            'geoPais',
+            'geoPais_cod',
+            'geoRegiao',
+            'geoRegiao_cod',
+            'geoEstado',
+            'geoEstado_cod',
+            'geoMesorregiao',
+            'geoMesorregiao_cod',
+            'geoMicrorregiao',
+            'geoMicrorregiao_cod',
+            'geoMunicipio',
+            'geoMunicipio_cod',
+            'geoZona',
+            'geoZona_cod',
+            'geoSubprefeitura',
+            'geoSubprefeitura_cod',
+            'geoDistrito',
+            'geoDistrito_cod',
+            'geoSetor_censitario',
+            'geoSetor_censitario_cod',
+            'event_importer_processed_file',
+            'opportunityTabName',
+            'useOpportunityTab',
+            'sentNotification',
+            'public',
+            'location',
+
+        ];
+        
+        $props = [
+            'agent' => \MapasCulturais\Entities\Agent::getPropertiesMetadata(),
+            'space' => \MapasCulturais\Entities\Space::getPropertiesMetadata(),
+        ];
+
+        $_fields = [];
+        foreach($props as $entity => $values){
+            foreach($values as $field => $v){
+                if(!$v["isEntityRelation"] && !in_array($field,$exclude_list)){
+                    $_fields[$entity][$field] = $v;
+                }
+            }
+        }
+
+        return $_fields;
+        
     }
 
     function head() {
@@ -1865,7 +1977,22 @@ class Theme extends MapasCulturais\Theme {
             'Anexos' => i::__('Anexos'),
             'Avaliação' => i::__('Avaliação'),
             'Status' => i::__('Status'),
-            'spaceRelationRequestSent' =>  i::__('Sua requisição para relacionar o espaço {{space}} foi enviada.')
+            'spaceRelationRequestSent' =>  i::__('Sua requisição para relacionar o espaço {{space}} foi enviada.'),
+
+            'conditionMandatory' => i::__('Informe a qual campo quer condicionar a obrigatoriedade'),
+            'fieldCondition' => i::__('Informe o valor condicionante do campo'),
+            'category' => i::__('Categoria'),
+            'removeField' => i::__('Deseja remover este campo?'),
+            'projectName' => i::__('Nome do projeto'),
+            'agentSummaries' => i::__('Resumo dos agentes'),
+            'spaceSummaries' => i::__('Resumo dos espaços'),
+            'disableCategories' => i::__('Você desativou a categoria, todos os campos vinculado a alguma categoria serão também desativados'),
+            'successFullySaved' => i::__('Salvo com sucesso'),
+            'activateField' => i::__('Para ativar este campo, ative também o campo Categoria'),
+            'fieldsDisabled' => i::__('Atenção, você tentou marcar campos que estão debilitados por algum tipo de condicional ou vinculado a alguma categoria, verifique se todos foram que deseja marcar foram marcados corretamente'),
+            'providingAccount' => i::__('Ao enviar a prestação de contas, não será mais permitido editar os campos. tem certeza que deseja continuar?'),
+            'disableColumns' => i::__('Não é permitido desabilitar todas as colunas da tabela'),
+            'columnDisabling' => i::__('Não é permitido desabilitar a coluna')
         ]);
 
         $this->enqueueScript('app', 'entity.module.subsiteAdmins', 'js/ng.entity.module.subsiteAdmins.js', array('ng-mapasculturais'));
@@ -1896,6 +2023,11 @@ class Theme extends MapasCulturais\Theme {
         $this->jsObject['request']['id'] = $entity->id;
 
         $app->applyHookBoundTo($this, 'view.includeAngularEntityAssets:after');
+    }
+
+    function includeSealAssets(){
+        $this->enqueueScript("app","seal-locked-conf","js/seal-locked-conf.js");
+        $this->enqueueStyle("app","seal-locked-conf","css/seal-locked-conf.css");
     }
 
     protected function _printJsObject($var_name = 'MapasCulturais', $print_script_tag = true) {
@@ -2700,7 +2832,11 @@ class Theme extends MapasCulturais\Theme {
 
     public function renderModalFor($entity_name, $show_icon = true, $label = "", $classes = "", $use_modal = true) {
         $app = App::i();
-
+        
+        if($app->user->is('guest')){
+            return;
+        }
+        
         $entity_classname = $app->controller($entity_name)->entityClassName;
 
         $current_entity_classname = $this->controller->entityClassName;
