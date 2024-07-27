@@ -5,16 +5,16 @@ services:
     volumes:
      - ./docker-data/public-files:/var/www/html/files
      - ./docker-data/assets:/var/www/html/assets
-    ports:
-     - "8080:80"
-     - "8443:443"
+    #ports:
+    # - "8080:80"
+    # - "8443:443"
     depends_on:
       - mapasculturais
     links:
       - mapasculturais
-    #networks:
-      #- npmproxy
-      #- mapacultural_santaluzia_mg_default
+    networks:
+      - npmproxy
+      - mapacultural_santaluzia_mg_default
 
   mapasculturais:
     env_file:
@@ -23,9 +23,13 @@ services:
       context: ./core
       dockerfile: ./Dockerfile
     restart: always
-    ports:
-      - "9000:9000"
-    
+   # ports:
+     # - "9000:9000"
+    deploy:
+      resources:
+        limits:
+          cpus: "3"
+          memory: 7168M
     volumes:
       - ./docker-data/assets:/var/www/html/assets
       - ./docker-data/public-files:/var/www/html/files
@@ -48,8 +52,8 @@ services:
       - ./plugins/Report:/var/www/html/protected/application/plugins/Report
       - ./plugins/SendEmailUser:/var/www/html/protected/application/plugins/SendEmailUser
      
-    #networks:
-      #- mapacultural_santaluzia_mg_default
+    networks:
+      - mapacultural_santaluzia_mg_default
 
     links:
       - db
@@ -84,15 +88,15 @@ services:
     volumes:
       - ./docker-data/sessions:/data
 
-    #networks:
-      #- mapacultural_santaluzia_mg_default
+    networks:
+      - mapacultural_santaluzia_mg_default
 
   redis:
     image: redis:6
     command: --maxmemory 256Mb --maxmemory-policy allkeys-lru
 
-    #networks:
-      #- mapacultural_santaluzia_mg_default
+    networks:
+      - mapacultural_santaluzia_mg_default
 
   db:
     image: postgis/postgis:14-master
@@ -109,11 +113,11 @@ services:
       - ./docker-data/db-data:/var/lib/postgresql/data
 
 #Regras para utilização com proxy pré-defindo, para rodar aplicação local deve comentar as linhas abaixo e liberar as portas comentadas nas linhas acima.
-    #networks:
-      #- npmproxy
-      #- mapacultural_santaluzia_mg_default
+    networks:
+      - npmproxy
+      - mapacultural_santaluzia_mg_default
 
-#networks:
-  #mapacultural_santaluzia_mg_default:
-  #npmproxy:
-    #external: true
+networks:
+  mapacultural_santaluzia_mg_default:
+  npmproxy:
+    external: true
