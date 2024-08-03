@@ -1,1 +1,0 @@
-<span>{{entity[fieldName]}}</span>
