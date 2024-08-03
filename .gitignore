@@ -1,4 +1,4 @@
+docker-data
 docker-data/*
 node_modules
 vendor
-docker-data
