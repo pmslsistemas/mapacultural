@@ -3,7 +3,7 @@ use MapasCulturais\i;
 
 return [
     'app.siteName' => 'Mapa cultural Cultural de Santa Luzia MG',
-    'app.siteDescription' => " plataforma livre, colaborativa e interativa de mapeamento do cenário cultural e instrumento de governança 
+    'app.siteDescription' => " Plataforma livre, colaborativa e interativa de mapeamento do cenário cultural e instrumento de governança 
         digital no aprimoramento da gestão pública, dos mecanismos de participação e da democratização do acesso às políticas culturais 
         promovidas pela Secretaria Municipal de Cultura e Turismo de Santa Luzia-MG. O Mapa cultural é uma ferramenta de comunicação 
         que visibiliza os eventos do circuito de festivais de artes e do calendário cultural, os projetos desenvolvidos e os espaços 

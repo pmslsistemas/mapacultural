@@ -16,7 +16,7 @@ return [
         ],
         'imageOfUsage' => [
             'title'=>  i::__('Autorização de uso de imagem'),
-            'text'=> file_get_contents(__DIR__ . '/../lgpd-terms/image-of-usage.html'),
+            'text'=> file_get_contents(__DIR__ . '/../lgpd-terms/images-use.html'),
             'buttonText' => i::__('Autorizo o uso de imagem')
         ],
     ]
