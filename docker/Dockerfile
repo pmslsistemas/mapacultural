@@ -2,6 +2,7 @@ FROM hacklab/mapasculturais:7.4.6
 
 COPY themes /var/www/src/themes
 COPY plugins /var/www/src/plugins
+COPY modules /var/www/src/modules
 
 WORKDIR /var/www/src
 RUN pnpm install --recursive && pnpm run build 
