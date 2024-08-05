@@ -83,7 +83,7 @@ services:
       - POSTGRES_DB=mapas
       - POSTGRES_DB_TEST=mapasculturais_test
     volumes:
-      - ./db:/docker-entrypoint-initdb.d
+      - ./docker/db:/docker-entrypoint-initdb.d
       - ./docker-data/db-data:/var/lib/postgresql/data
 
 #Regras para utilização com proxy pré-defindo, para rodar aplicação local deve comentar as linhas abaixo e liberar as portas comentadas nas linhas acima.
