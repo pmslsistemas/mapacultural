@@ -80,8 +80,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=mapas
       - POSTGRES_USER=mapas
-      - POSTGRES_DB=mapas
-      - POSTGRES_DB_TEST=mapasculturais_test
+      - POSTGRES_DB=mapas      
     volumes:
       - ./docker/db:/docker-entrypoint-initdb.d
       - ./docker-data/db-data:/var/lib/postgresql/data
