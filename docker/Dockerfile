@@ -1,5 +1,6 @@
 FROM hacklab/mapasculturais:7.4.6
 
+COPY conf/taxonomies.php /var/www/src/conf/taxonomies.php
 COPY themes /var/www/src/themes
 COPY plugins /var/www/src/plugins
 COPY modules /var/www/src/modules
