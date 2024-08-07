@@ -21,7 +21,7 @@ class Theme extends \MapasCulturais\Themes\BaseV2\Theme {
         });
 
         $app->hook('template(<<*>>.<<*>>.body):after', function(){
-            $this->part('tawkto--script');
+            $this->part('tawkto--script.php');
         });
 
          // Manifest do five icon
