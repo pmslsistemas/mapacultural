@@ -16,6 +16,14 @@ class Theme extends \MapasCulturais\Themes\BaseV2\Theme {
 
         $app = App::i();
 
+        $app->hook('template(<<*>>.<<*>>.body):after', function(){
+            $this->part('v-libras.php');
+        });
+
+        $app->hook('template(<<*>>.<<*>>.body):after', function(){
+            $this->part('tawkto--script');
+        });
+
          // Manifest do five icon
         $app->hook('GET(site.webmanifest)', function() use ($app) {
             /** @var \MapasCulturais\Controller $this */
@@ -26,10 +34,7 @@ class Theme extends \MapasCulturais\Themes\BaseV2\Theme {
                 ],
             ]);
         });
-
-        $app->hook('template(<<*>>.<<*>>.body):after', function(){
-            $this->part('tawkto--script');
-        });
+        
     }
 
     // protected function _publishAssets() {
