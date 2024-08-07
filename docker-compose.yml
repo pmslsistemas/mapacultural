@@ -1,0 +1,102 @@
+services:
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    volumes:
+     - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+
+     - /dev/null:/var/www/html/index.php
+
+     - ./docker-data/public-files:/var/www/html/files
+     - ./docker-data/assets:/var/www/html/assets
+
+    ports:
+     - "8080:80"
+     - "8443:443"
+    depends_on:
+      - mapasculturais
+    links:
+      - mapasculturais
+    #networks:
+      #- npmproxy
+      #- mapacultural_santaluzia_mg_default
+
+  sessions:
+    image: redis:6
+    restart: unless-stopped
+    command: --maxmemory 384Mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ./docker-data/sessions:/data
+    #networks:
+      #- mapacultural_santaluzia_mg_default  
+
+  redis:
+    image: redis:6
+    restart: unless-stopped
+    command: --maxmemory 384Mb --maxmemory-policy allkeys-lru
+    #networks:
+      #- mapacultural_santaluzia_mg_default
+
+  mapasculturais:
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+
+    env_file:
+      - .env
+
+    restart: unless-stopped
+
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./docker/common/config.d:/var/www/config/common.d
+      - ./docker/production/config.d:/var/www/config/config.d
+      - ./docker/common/lgpd-terms:/var/www/config/lgpd-terms
+      - ./docker-data/assets:/var/www/html/assets
+      - ./docker-data/public-files:/var/www/html/files
+      - ./docker-data/private-files:/var/www/var/private-files
+      - ./docker-data/logs:/var/www/var/logs
+     
+    #networks:
+      #- mapacultural_santaluzia_mg_default
+
+    environment:
+      - REDIS_CACHE=redis
+      - SESSIONS_SAVE_PATH=tcp://sessions:6379
+
+    depends_on:
+      - db
+      - redis
+      - sessions
+    links:
+      - db
+      - redis
+      - sessions
+
+  db:
+    image: postgis/postgis:14-master
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=mapas
+      - POSTGRES_USER=mapas
+      - POSTGRES_DB=mapas
+      - POSTGRES_DB_TEST=mapasculturais_test
+    volumes:
+      - ./docker/db:/docker-entrypoint-initdb.d
+      - ./docker-data/db-data:/var/lib/postgresql/data
+
+#Regras para utilização com proxy pré-defindo, para rodar aplicação local deve comentar as linhas abaixo e liberar as portas comentadas nas linhas acima.
+    #networks:
+      #- npmproxy
+      #- mapacultural_santaluzia_mg_default
+
+#networks:
+  #mapacultural_santaluzia_mg_default:
+  #npmproxy:
+    #external: true
+
+  #mailhog: 
+    #image: mailhog/mailhog
+    #|ports:
+      #- "8025:8025"
